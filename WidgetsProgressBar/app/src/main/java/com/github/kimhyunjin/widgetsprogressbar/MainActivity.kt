@@ -9,7 +9,7 @@ import kotlin.concurrent.thread
 class MainActivity : AppCompatActivity() {
 
     private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
-
+    private var count = 0
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
@@ -25,9 +25,19 @@ class MainActivity : AppCompatActivity() {
          *
          */
         thread(start=true) {
-            Thread.sleep(3000)
-            runOnUiThread {
-                showProgress(false)
+//            Thread.sleep(3000)
+//            runOnUiThread {
+//                showProgress(false)
+//            }
+            while (true) {
+                Thread.sleep(1000)
+                count++
+
+                runOnUiThread {
+                    binding.textView.text = "$count"
+                    if (count == 10) showProgress(false)
+                }
+                
             }
         }
     }
