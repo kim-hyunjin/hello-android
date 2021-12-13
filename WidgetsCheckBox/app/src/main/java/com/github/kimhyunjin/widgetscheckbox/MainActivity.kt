@@ -9,20 +9,28 @@ import com.github.kimhyunjin.widgetscheckbox.databinding.ActivityMainBinding
 class MainActivity : AppCompatActivity() {
 
     private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
+    private var fruits: MutableList<String> = mutableListOf()
     private val listener by lazy {CompoundButton.OnCheckedChangeListener { buttonView, isChecked ->
-        if(isChecked) {
-            when(buttonView.id) {
-                R.id.checkApple -> Log.d("CheckBox", "사과가 선택되었습니다.")
-                R.id.checkBanana -> Log.d("CheckBox", "바나나가 선택되었습니다.")
-                R.id.checkOrange -> Log.d("CheckBox", "오렌지가 선택되었습니다.")
+        when(buttonView.id) {
+            R.id.checkApple -> {
+                binding.selected.text = "사과"
+                if(isChecked) fruits.add("사과") else fruits.remove("사과")
             }
-        } else {
-            when(buttonView.id) {
-                R.id.checkApple -> Log.d("CheckBox", "사과가 선택 해제되었습니다.")
-                R.id.checkBanana -> Log.d("CheckBox", "바나나가 선택 해제되었습니다.")
-                R.id.checkOrange -> Log.d("CheckBox", "오렌지가 선택 해제되었습니다.")
+            R.id.checkBanana -> {
+                binding.selected.text = "바나나"
+                if(isChecked) fruits.add("바나나") else fruits.remove("바나나")
+            }
+            R.id.checkOrange -> {
+                binding.selected.text = "오렌지"
+                if(isChecked) fruits.add("오렌지") else fruits.remove("오렌지")
             }
         }
+
+        var msg = "selected: "
+        fruits.forEachIndexed { index, item ->
+            msg += if (index != fruits.size - 1) "$item, " else item
+        }
+        Log.d("CheckBox", msg)
     }}
 
     override fun onCreate(savedInstanceState: Bundle?) {
