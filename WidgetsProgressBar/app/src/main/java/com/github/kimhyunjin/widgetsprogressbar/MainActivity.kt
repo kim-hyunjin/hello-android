@@ -37,7 +37,7 @@ class MainActivity : AppCompatActivity() {
                     binding.textView.text = "$count"
                     if (count == 10) showProgress(false)
                 }
-                
+
             }
         }
     }

@@ -9,29 +9,18 @@ import com.github.kimhyunjin.widgetscheckbox.databinding.ActivityMainBinding
 class MainActivity : AppCompatActivity() {
 
     private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
-    private var fruits: MutableList<String> = mutableListOf()
     private val listener by lazy {CompoundButton.OnCheckedChangeListener { buttonView, isChecked ->
+        var fruit = ""
         when(buttonView.id) {
-            R.id.checkApple -> {
-                binding.selected.text = "사과"
-                if(isChecked) fruits.add("사과") else fruits.remove("사과")
-            }
-            R.id.checkBanana -> {
-                binding.selected.text = "바나나"
-                if(isChecked) fruits.add("바나나") else fruits.remove("바나나")
-            }
-            R.id.checkOrange -> {
-                binding.selected.text = "오렌지"
-                if(isChecked) fruits.add("오렌지") else fruits.remove("오렌지")
-            }
+            R.id.checkApple -> fruit = "사과"
+            R.id.checkBanana -> fruit = "바나나"
+            R.id.checkOrange -> fruit = "오렌지"
         }
-
-        var msg = "selected: "
-        fruits.forEachIndexed { index, item ->
-            msg += if (index != fruits.size - 1) "$item, " else item
-        }
-        Log.d("CheckBox", msg)
+        changeFruits(fruit, isChecked)
+        printFruits()
     }}
+
+    private var fruits: MutableList<String> = mutableListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,5 +30,18 @@ class MainActivity : AppCompatActivity() {
         binding.checkBanana.setOnCheckedChangeListener(listener)
         binding.checkOrange.setOnCheckedChangeListener(listener)
 
+    }
+
+    private fun changeFruits(fruit: String, isChecked: Boolean) {
+        binding.selected.text = fruit
+        if(isChecked) fruits.add(fruit) else fruits.remove(fruit)
+    }
+
+    private fun printFruits() {
+        var msg = "selected: "
+        fruits.forEachIndexed { index, item ->
+            msg += if (index != fruits.size - 1) "$item, " else item
+        }
+        Log.d("CheckBox", msg)
     }
 }
