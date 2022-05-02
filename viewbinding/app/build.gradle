@@ -17,7 +17,7 @@ android {
     }
 
     buildFeatures {
-        viewBinding true
+        viewBinding true // viewBinding을 사용하기 위해 꼭 필요
     }
 
     buildTypes {
