@@ -3,6 +3,8 @@ package com.github.kimhyunjin.basicsyntax
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import java.lang.IllegalArgumentException
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -209,7 +211,7 @@ class MainActivity : AppCompatActivity() {
 
         /* elvis operator */
         var notNullLength: Int
-        notNullLength = nullable?.length?:0 // length가 없을 경우 0
+        notNullLength = nullable?.length ?: 0 // length가 없을 경우 0
 
         /* 스코프 함수 */
         // run - 스코프 함수 안에서 호출한 대상을 this로 사용할 수 있다.
@@ -229,7 +231,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         // 마지막 실행 코드를 결과로 반환
-        with (list) {
+        with(list) {
             val listSize = size
             get(listSize - 1)
         }
@@ -295,9 +297,11 @@ class Kotlin {
     constructor(value: String) {
 
     }
+
     constructor(value: Int) {
 
     }
+
     constructor(value1: Int, value2: String)
 }
 
@@ -346,6 +350,7 @@ data class UserData2(var name: String, var age: Int) {
     init {
         Log.d("UserData", "init")
     }
+
     fun process() {
         // 클래스와 동일하게 메서드 사용이 가능하다.
     }
@@ -360,7 +365,7 @@ open class Parent {
     }
 }
 
-class Child: Parent() {
+class Child : Parent() {
     fun myHello() {
         hello = "My Hello!"
         sayHello()
@@ -374,12 +379,13 @@ open class BaseClass {
     open fun opened() {
 
     }
+
     fun notOpened() {
 
     }
 }
 
-class ChildClass: BaseClass() {
+class ChildClass : BaseClass() {
     override var open: String = "You are"
     override fun opened() {
 
@@ -394,6 +400,7 @@ class MyClass {
         Log.d("Extension", "added를 더한 값은 ${original.plus(added)}")
     }
 }
+
 // 기존 클래스에 메서드를 추가하는 개념
 fun String.plus(word: String): String {
     return this + word
@@ -404,10 +411,11 @@ abstract class Animal {
     fun walk() {
         Log.d("abstract", "걷습니다.")
     }
+
     abstract fun move()
 }
 
-class Bird: Animal() {
+class Bird : Animal() {
     override fun move() {
         Log.d("abstract", "날아서 이동합니다.")
     }
@@ -421,7 +429,7 @@ interface InterfaceKotlin {
     fun set()
 }
 
-class KotlinImpl: InterfaceKotlin {
+class KotlinImpl : InterfaceKotlin {
     override var variable: String = "Init"
 
     override fun get() {
@@ -434,7 +442,7 @@ class KotlinImpl: InterfaceKotlin {
 }
 
 // object 키워드를 사용해 클래스의 상속 형태가 아닌 직접 구현
-var kotlinImpl = object: InterfaceKotlin {
+var kotlinImpl = object : InterfaceKotlin {
     override var variable: String = "Init"
 
     override fun get() {
@@ -455,26 +463,30 @@ var kotlinImpl = object: InterfaceKotlin {
 */
 class Person3 {
     var name: String? = null
+
     init {
         name = "Lionel"
     }
+
     // safe call이 남용되어 가독성을 떨어트린다.
     fun process() {
         name?.plus(" Messi")
         print("이름의 길이 = ${name?.length}")
-        print("이름의 첫 글자 = ${name?.substring(0,1)}")
+        print("이름의 첫 글자 = ${name?.substring(0, 1)}")
     }
 }
 
 class Person4 {
     lateinit var name: String
+
     init {
         name = "Lionel"
     }
+
     fun process() {
         name.plus(" Messi")
         print("이름의 길이 = ${name.length}")
-        print("이름의 첫 글자 = ${name.substring(0,1)}")
+        print("이름의 첫 글자 = ${name.substring(0, 1)}")
     }
 }
 
@@ -484,7 +496,7 @@ class Person4 {
 */
 class Company {
     // 선언 시에 초기화 코드를 함께 작성하기 때문에 따로 초기화할 필요 없다.
-    val person: Person4 by lazy {Person4()}
+    val person: Person4 by lazy { Person4() }
 
     // process함수가 호출되어서 process.name이 호출되는 순간에 person이 초기화된다.(lazy)
     fun process() {
@@ -492,3 +504,31 @@ class Company {
     }
 }
 
+/*
+ *  getter setter
+ */
+
+class Car() {
+    lateinit var owner: String
+
+    val myBrand: String = "BMW"
+        // Custom getter
+        get() {
+            return field.lowercase(Locale.ROOT)
+        }
+
+    var maxSpeed: Int = 250
+        // Custom setter
+        set(value) {
+            field =
+                if (value > 0) value else throw IllegalArgumentException("Max speed can not be less than zero.")
+        }
+
+    var myModel: String = "M5"
+        private set
+
+    init {
+        this.owner = "Frank"
+        this.myModel = "M3"
+    }
+}
