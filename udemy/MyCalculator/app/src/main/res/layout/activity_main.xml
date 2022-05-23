@@ -8,9 +8,9 @@
     tools:context=".MainActivity">
 
     <TextView
+        android:id="@+id/tv_input"
         android:layout_width="match_parent"
         android:layout_height="250dp"
-        android:text="@string/calc_text"
         android:background="@color/lightGray"
         android:textSize="40sp"
         android:padding="10dp"
@@ -58,7 +58,7 @@
             android:layout_weight="1"
             android:text="/"
             android:layout_margin="2dp"
-            android:onClick="onDigit"
+            android:onClick="onOperator"
             />
     </LinearLayout>
     <LinearLayout
@@ -102,7 +102,7 @@
             android:layout_weight="1"
             android:text="*"
             android:layout_margin="2dp"
-            android:onClick="onDigit"
+            android:onClick="onOperator"
             />
     </LinearLayout>
     <LinearLayout
@@ -140,13 +140,13 @@
             android:onClick="onDigit"
             />
         <Button
-            android:id="@+id/btnSubstract"
+            android:id="@+id/btnSubtract"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="-"
             android:layout_margin="2dp"
-            android:onClick="onDigit"
+            android:onClick="onOperator"
             />
     </LinearLayout>
     <LinearLayout
@@ -157,10 +157,19 @@
         >
 
         <Button
+            android:id="@+id/btnDot"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="."
+            android:layout_margin="2dp"
+            android:onClick="onDecimalPoint"
+            />
+        <Button
             android:id="@+id/btnZero"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="2"
+            android:layout_weight="1"
             android:text="0"
             android:layout_margin="2dp"
             android:onClick="onDigit"
@@ -173,7 +182,7 @@
             android:layout_weight="1"
             android:text="CLR"
             android:layout_margin="2dp"
-            android:onClick="onDigit"
+            android:onClick="onClear"
             />
         <Button
             android:id="@+id/btnPlus"
@@ -182,7 +191,7 @@
             android:layout_weight="1"
             android:text="+"
             android:layout_margin="2dp"
-            android:onClick="onDigit"
+            android:onClick="onOperator"
             />
     </LinearLayout>
     <LinearLayout
@@ -199,7 +208,7 @@
             android:layout_weight="1"
             android:text="="
             android:layout_margin="2dp"
-            android:onClick="onDigit"
+            android:onClick="onEqual"
             />
 
 
