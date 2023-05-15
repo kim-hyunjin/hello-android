@@ -1,5 +1,6 @@
 package com.github.kimhyunjin.myquizapp
 
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
 import androidx.appcompat.app.AppCompatActivity
@@ -25,8 +26,10 @@ class QuizQuestionActivity : AppCompatActivity() {
 
     private lateinit var questionList: ArrayList<Question>
     private lateinit var optionViewList: ArrayList<TextView>
+    private var mUserName: String? = null
     private var currentQuestionIndex = 0
     private var selectedOptionIndex: Int? = null
+    private var correctAnswerCount = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,6 +44,7 @@ class QuizQuestionActivity : AppCompatActivity() {
 
         questionList = Constants.getQuestions()
         progressBar.max = questionList.size
+        mUserName = intent.getStringExtra(Constants.USER_NAME)
 
         createQuestionView(questionList[currentQuestionIndex])
     }
@@ -51,12 +55,7 @@ class QuizQuestionActivity : AppCompatActivity() {
         tvProgress.text = getString(R.string.tv_progress, currentQuestionIndex + 1, progressBar.max)
         ivImage.setImageResource(question.image)
         createOptionsView(question.options)
-
-        btnSubmit.text = if (currentQuestionIndex + 1 == questionList.size) {
-            "FINISH"
-        } else {
-            "SUBMIT"
-        }
+        btnSubmit.text = "SUBMIT"
         btnSubmit.setOnClickListener {
             answerView()
         }
@@ -110,10 +109,11 @@ class QuizQuestionActivity : AppCompatActivity() {
 
         val correctAnswer = questionList[currentQuestionIndex].answer
         val selectedOptionView = optionViewList[selectedOptionIndex!!]
-
+        val correctOptionView = optionViewList[correctAnswer]
+        correctOptionView.setBackgroundResource(R.drawable.correct_option_border_bg)
         with(selectedOptionView) {
             if (selectedOptionIndex == correctAnswer) {
-                setBackgroundResource(R.drawable.correct_option_border_bg)
+                correctAnswerCount++
             } else {
                 setBackgroundResource(R.drawable.wrong_option_border_bg)
             }
@@ -124,6 +124,12 @@ class QuizQuestionActivity : AppCompatActivity() {
                 text = "FINISH"
                 setOnClickListener {
                     Toast.makeText(context, "You made it to the end!", Toast.LENGTH_LONG).show()
+                    val intent = Intent(context, ResultActivity::class.java)
+                    intent.putExtra(Constants.USER_NAME, mUserName)
+                    intent.putExtra(Constants.TOTAL_CNT, questionList.size)
+                    intent.putExtra(Constants.CORRECT_CNT, correctAnswerCount)
+                    startActivity(intent)
+                    finish()
                 }
             } else {
                 text = "GO TO NEXT QUESTION"

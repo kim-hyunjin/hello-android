@@ -2,6 +2,10 @@ package com.github.kimhyunjin.myquizapp
 
 object Constants {
 
+    const val USER_NAME = "userNameKey"
+    const val CORRECT_CNT = "correctAnswerCount"
+    const val TOTAL_CNT = "totalQuestionCount"
+
     fun getQuestions(): ArrayList<Question> {
         val questionList = ArrayList<Question>()
 

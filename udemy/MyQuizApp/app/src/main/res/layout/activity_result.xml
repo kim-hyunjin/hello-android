@@ -50,6 +50,7 @@
         android:layout_marginTop="10dp"
         android:textColor="@android:color/secondary_text_dark"
         android:textSize="20sp"
+        android:text="@string/tv_score"
         tools:text="Your Score is 9 out of 10"
         />
     <Button
