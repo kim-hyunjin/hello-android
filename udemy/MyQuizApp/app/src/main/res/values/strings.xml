@@ -8,4 +8,8 @@
     <string name="quiz_image">Quiz Image</string>
     <string name="tv_progress">%1$d / %2$d</string>
     <string name="submit">SUBMIT</string>
+    <string name="result">Result</string>
+    <string name="trophy_image">trophy image</string>
+    <string name="hey_congratulations">Hey, Congratulations!</string>
+    <string name="finish">FINISH</string>
 </resources>
