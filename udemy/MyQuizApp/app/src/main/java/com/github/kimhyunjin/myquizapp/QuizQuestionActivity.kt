@@ -10,6 +10,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.view.setMargins
 
 class QuizQuestionActivity : AppCompatActivity() {
@@ -56,11 +57,16 @@ class QuizQuestionActivity : AppCompatActivity() {
         } else {
             "SUBMIT"
         }
+        btnSubmit.setOnClickListener {
+            answerView()
+        }
     }
 
     private fun createOptionsView(options: List<String>) {
         optionContainer.removeAllViews()
         optionViewList = ArrayList()
+        selectedOptionIndex = null
+
         for (i in 0 until options.count()) {
             val tv = TextView(this)
             tv.id = i
@@ -94,5 +100,42 @@ class QuizQuestionActivity : AppCompatActivity() {
                 tv.setBackgroundResource(R.drawable.default_option_border_bg)
             }
         }
+    }
+
+    private fun answerView() {
+        if (selectedOptionIndex == null) {
+            Toast.makeText(this, "Please select answer", Toast.LENGTH_LONG).show()
+            return
+        }
+
+        val correctAnswer = questionList[currentQuestionIndex].answer
+        val selectedOptionView = optionViewList[selectedOptionIndex!!]
+
+        with(selectedOptionView) {
+            if (selectedOptionIndex == correctAnswer) {
+                setBackgroundResource(R.drawable.correct_option_border_bg)
+            } else {
+                setBackgroundResource(R.drawable.wrong_option_border_bg)
+            }
+        }
+
+        with(btnSubmit) {
+            if (currentQuestionIndex + 1 == questionList.size) {
+                text = "FINISH"
+                setOnClickListener {
+                    Toast.makeText(context, "You made it to the end!", Toast.LENGTH_LONG).show()
+                }
+            } else {
+                text = "GO TO NEXT QUESTION"
+                setOnClickListener {
+                    createQuestionView(questionList[++currentQuestionIndex])
+                }
+            }
+        }
+
+        for (tvOption in optionViewList) {
+            tvOption.setOnClickListener(null)
+        }
+
     }
 }

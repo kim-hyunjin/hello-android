@@ -55,7 +55,7 @@ object Constants {
             6, "What country does this flag belong to?",
             R.drawable.ic_flag_of_germany,
             listOf("Germany", "Georgia",
-            "Greece", "none of these"), 1
+            "Greece", "none of these"), 0
         )
 
         questionList.add(que6)
