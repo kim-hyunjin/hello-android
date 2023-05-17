@@ -2,6 +2,7 @@ package com.example.kidsdrawingapp
 
 import android.content.Context
 import android.graphics.*
+import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
 
@@ -29,7 +30,7 @@ class DrawingView(context: Context): View(context) {
         mDrawPaint.strokeCap = Paint.Cap.ROUND
 
         mCanvasPaint = Paint(Paint.DITHER_FLAG)
-        mBrushSize = 20f
+//        mBrushSize = 20f
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
@@ -72,8 +73,14 @@ class DrawingView(context: Context): View(context) {
         return true
     }
 
+    fun setSizeForBrush(newSize: Float) {
+        // 화면 크기를 고려
+        mBrushSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, newSize, resources.displayMetrics)
+        mDrawPaint.strokeWidth = mBrushSize
+    }
+
     private fun drawPreviousPaths(canvas: Canvas?) {
-        if (canvas == null) return;
+        if (canvas == null) return
 
         for (path in mPaths) {
             mDrawPaint.strokeWidth = path.brushThickness
@@ -90,6 +97,7 @@ class DrawingView(context: Context): View(context) {
         mPaths.add(mDrawPath)
         mDrawPath = CustomPath(mColor, mBrushSize)
     }
+
     internal inner class CustomPath(var color: Int, var brushThickness: Float): Path() {
 
     }
