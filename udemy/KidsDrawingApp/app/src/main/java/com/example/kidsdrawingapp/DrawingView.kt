@@ -13,6 +13,7 @@ class DrawingView(context: Context): View(context) {
     private lateinit var mCanvas: Canvas
     private var mBrushSize: Float = 0f
     private var mColor: Int = Color.BLACK
+    private var mPaths = ArrayList<CustomPath>()
 
     init {
         setupDrawing()
@@ -20,11 +21,13 @@ class DrawingView(context: Context): View(context) {
 
     private fun setupDrawing() {
         mDrawPath = CustomPath(mColor, mBrushSize)
+
         mDrawPaint = Paint()
         mDrawPaint.color = mColor
         mDrawPaint.style = Paint.Style.STROKE
         mDrawPaint.strokeJoin = Paint.Join.ROUND
         mDrawPaint.strokeCap = Paint.Cap.ROUND
+
         mCanvasPaint = Paint(Paint.DITHER_FLAG)
         mBrushSize = 20f
     }
@@ -38,6 +41,9 @@ class DrawingView(context: Context): View(context) {
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
         canvas?.drawBitmap(mCanvasBitmap, 0f, 0f, mCanvasPaint)
+
+        drawPreviousPaths(canvas)
+
         mDrawPaint.strokeWidth = mDrawPath.brushThickness
         mDrawPaint.color = mDrawPath.color
         canvas?.drawPath(mDrawPath, mDrawPaint)
@@ -49,16 +55,14 @@ class DrawingView(context: Context): View(context) {
 
         when(event?.action) {
             MotionEvent.ACTION_DOWN -> {
-                mDrawPath.brushThickness = mBrushSize
-                mDrawPath.color = mColor
-                mDrawPath.reset()
+                setPathWithUserSetting()
                 mDrawPath.moveTo(touchX!!, touchY!!)
             }
             MotionEvent.ACTION_MOVE -> {
                 mDrawPath.lineTo(touchX!!, touchY!!)
             }
             MotionEvent.ACTION_UP -> {
-                mDrawPath = CustomPath(mColor, mBrushSize)
+                savePathAndPrepareNewPath()
             } else -> {
                 return false
             }
@@ -66,6 +70,25 @@ class DrawingView(context: Context): View(context) {
 
         invalidate()
         return true
+    }
+
+    private fun drawPreviousPaths(canvas: Canvas?) {
+        if (canvas == null) return;
+
+        for (path in mPaths) {
+            mDrawPaint.strokeWidth = path.brushThickness
+            mDrawPaint.color = path.color
+            canvas.drawPath(path, mDrawPaint)
+        }
+    }
+    private fun setPathWithUserSetting() {
+        mDrawPath.brushThickness = mBrushSize
+        mDrawPath.color = mColor
+        // mDrawPath.reset() // why should I call this?
+    }
+    private fun savePathAndPrepareNewPath() {
+        mPaths.add(mDrawPath)
+        mDrawPath = CustomPath(mColor, mBrushSize)
     }
     internal inner class CustomPath(var color: Int, var brushThickness: Float): Path() {
 
