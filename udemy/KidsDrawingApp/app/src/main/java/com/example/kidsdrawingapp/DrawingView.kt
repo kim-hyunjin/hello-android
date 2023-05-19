@@ -11,6 +11,14 @@ class DrawingView(context: Context): View(context) {
     private lateinit var mCanvasBitmap: Bitmap
     private lateinit var mDrawPaint: Paint
     private lateinit var mCanvasPaint: Paint
+    /**
+     * A variable for canvas which will be initialized later and used.
+     *
+     *The Canvas class holds the "draw" calls. To draw something, you need 4 basic components: A Bitmap to hold the pixels, a Canvas to host
+     * the draw calls (writing into the bitmap), a drawing primitive (e.g. Rect,
+     * Path, text, Bitmap), and a paint (to describe the colors and styles for the
+     * drawing)
+     */
     private lateinit var mCanvas: Canvas
     private var mBrushSize: Float = 0f
     private var mColor: Int = Color.BLACK
@@ -20,12 +28,23 @@ class DrawingView(context: Context): View(context) {
         setupDrawing()
     }
 
+    /**
+     * This method is called when either the brush or the eraser
+     * sizes are to be changed. This method sets the brush/eraser
+     * sizes to the new values depending on user selection.
+     */
     fun setSizeForBrush(newSize: Float) {
         // 화면 크기를 고려
         mBrushSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, newSize, resources.displayMetrics)
         mDrawPaint.strokeWidth = mBrushSize
     }
 
+    /**
+     * This function is called when the user desires a color change.
+     * This functions sets the color of a store to selected color and able to draw on view using that color.
+     *
+     * @param newColor
+     */
     fun setColorForBrush(color: Int) {
         mColor = color
     }
@@ -49,6 +68,10 @@ class DrawingView(context: Context): View(context) {
         mCanvas = Canvas(mCanvasBitmap)
     }
 
+    /**
+     * This method is called when a stroke is drawn on the canvas
+     * as a part of the painting.
+     */
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
         canvas?.drawBitmap(mCanvasBitmap, 0f, 0f, mCanvasPaint)
@@ -60,6 +83,10 @@ class DrawingView(context: Context): View(context) {
         canvas?.drawPath(mDrawPath, mDrawPaint)
     }
 
+    /**
+     * This method acts as an event listener when a touch
+     * event is detected on the device.
+     */
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         val touchX = event?.x
         val touchY = event?.y
