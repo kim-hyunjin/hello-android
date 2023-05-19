@@ -20,6 +20,16 @@ class DrawingView(context: Context): View(context) {
         setupDrawing()
     }
 
+    fun setSizeForBrush(newSize: Float) {
+        // 화면 크기를 고려
+        mBrushSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, newSize, resources.displayMetrics)
+        mDrawPaint.strokeWidth = mBrushSize
+    }
+
+    fun setColorForBrush(color: Int) {
+        mColor = color
+    }
+
     private fun setupDrawing() {
         mDrawPath = CustomPath(mColor, mBrushSize)
 
@@ -71,12 +81,6 @@ class DrawingView(context: Context): View(context) {
 
         invalidate()
         return true
-    }
-
-    fun setSizeForBrush(newSize: Float) {
-        // 화면 크기를 고려
-        mBrushSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, newSize, resources.displayMetrics)
-        mDrawPaint.strokeWidth = mBrushSize
     }
 
     private fun drawPreviousPaths(canvas: Canvas?) {
