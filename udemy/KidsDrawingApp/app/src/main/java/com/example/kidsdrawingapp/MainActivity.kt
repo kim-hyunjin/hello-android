@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -88,8 +89,12 @@ class MainActivity : ComponentActivity() {
                     color = Color.White
                 ) {
                     Column {
-                        DrawingCanvas()
-                        ToolArea()
+                        Row(modifier = Modifier.weight(8.5f, true)) {
+                            DrawingCanvas()
+                        }
+                        Row(modifier = Modifier.weight(1.5f, true)) {
+                            ToolArea()
+                        }
                     }
 
                 }
@@ -99,18 +104,19 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun DrawingCanvas() {
-        val configuration = LocalConfiguration.current
-        val canvasHeight = (configuration.screenHeightDp * 0.85).dp
-
+//        val configuration = LocalConfiguration.current
+//        val canvasHeight = (configuration.screenHeightDp * 0.85).dp
         Box(
-            modifier = Modifier.height(canvasHeight)
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(),
         ) {
             Image(
                 painter = painterResource(id = R.drawable.image),
                 contentDescription = "canvas background image",
                 alignment = Alignment.Center,
                 contentScale = ContentScale.Crop,
-                modifier = Modifier.height(canvasHeight)
+                modifier = Modifier.fillMaxHeight()
             )
             AndroidView(
                 factory = {
@@ -120,7 +126,7 @@ class MainActivity : ComponentActivity() {
                 },
                 modifier = Modifier
                     .border(BorderStroke(0.5.dp, Color(0xFF9AA2AF)))
-                    .height(canvasHeight)
+                    .fillMaxHeight()
                     .background(Color(0x80FFFFFF))
             )
         }
@@ -130,18 +136,22 @@ class MainActivity : ComponentActivity() {
     @Preview
     @Composable
     fun ToolArea() {
-        val configuration = LocalConfiguration.current
-        val toolHeight = (configuration.screenHeightDp * 0.1).dp
+//        val configuration = LocalConfiguration.current
+//        val toolHeight = (configuration.screenHeightDp * 0.1).dp
 
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color.White)
-                .height(toolHeight),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .background(Color.White),
+//                .height(toolHeight),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Palette()
-            Tools()
+            Row(modifier = Modifier.weight(1f, true)) {
+                Palette()
+            }
+            Row(modifier = Modifier.weight(1f, true)) {
+                Tools()
+            }
         }
     }
 
