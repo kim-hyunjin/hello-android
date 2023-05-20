@@ -52,7 +52,7 @@ import com.example.kidsdrawingapp.ui.theme.KidsDrawingAppTheme
 
 class MainActivity : ComponentActivity() {
     lateinit var drawingView: DrawingView
-    private val cameraAndLocationResultLauncher: ActivityResultLauncher<Array<String>> =
+    private val requestPermissions: ActivityResultLauncher<Array<String>> =
         registerForActivityResult(
             ActivityResultContracts.RequestMultiplePermissions()
         ) { permissions ->
@@ -64,16 +64,31 @@ class MainActivity : ComponentActivity() {
             permissions.entries.forEach {
                 val permissionName = it.key
                 val isGranted = it.value
-                var toastText = "Permission "
-                toastText += if (isGranted) "granted for " else "denied for "
-
-                when(permissionName) {
-                    permission.ACCESS_FINE_LOCATION -> toastText += "fine location"
-                    permission.ACCESS_COARSE_LOCATION -> toastText += "coarse location"
-                    permission.CAMERA -> toastText += "camera"
+                if (isGranted) {
+                    Toast.makeText(
+                        this,
+                        "Permission granted now yo can read the storage files.",
+                        Toast.LENGTH_LONG
+                    ).show()
+                } else {
+                    if (permissionName == permission.READ_EXTERNAL_STORAGE) {
+                        Toast.makeText(
+                            this,
+                            "Oops, you just denied the permission.",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
                 }
-
-                Toast.makeText(this, toastText, Toast.LENGTH_LONG).show()
+//                var toastText = "Permission "
+//                toastText += if (isGranted) "granted for " else "denied for "
+//
+//                when(permissionName) {
+//                    permission.ACCESS_FINE_LOCATION -> toastText += "fine location"
+//                    permission.ACCESS_COARSE_LOCATION -> toastText += "coarse location"
+//                    permission.CAMERA -> toastText += "camera"
+//                }
+//
+//                Toast.makeText(this, toastText, Toast.LENGTH_LONG).show()
             }
         }
 
@@ -247,24 +262,7 @@ class MainActivity : ComponentActivity() {
     fun GalleryButton() {
         IconButton(
             onClick = {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && shouldShowRequestPermissionRationale(
-                        permission.CAMERA
-                    )
-                ) {
-                    showRationaleDialog(
-                        " Permission Demo requires camera access",
-                        "Camera cannot be used because Camera access is denied"
-                    )
-                } else {
-                    // You can directly ask for the permission.
-                    // The registered ActivityResultCallback gets the result of this request.
-                    cameraAndLocationResultLauncher.launch(
-                        arrayOf(
-                            permission.CAMERA,
-                            permission.ACCESS_FINE_LOCATION
-                        )
-                    )
-                }
+                requestStoragePermission()
             }, modifier = Modifier
                 .width(50.dp)
                 .height(50.dp)
@@ -273,6 +271,38 @@ class MainActivity : ComponentActivity() {
                 painter = painterResource(id = R.drawable.ic_gallery),
                 contentDescription = "gallery",
                 tint = Color.Unspecified
+            )
+        }
+    }
+
+    private fun requestStoragePermission() {
+        if (shouldShowRequestPermissionRationale(permission.READ_EXTERNAL_STORAGE)) {
+            showRationaleDialog(
+                " Kids Drawing App",
+                "Kids Drawing App needs to Access Your External Storage"
+            )
+        } else {
+            requestPermissions.launch(arrayOf(permission.READ_EXTERNAL_STORAGE))
+        }
+    }
+
+    private fun requestCameraPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && shouldShowRequestPermissionRationale(
+                permission.CAMERA
+            )
+        ) {
+            showRationaleDialog(
+                " Permission Demo requires camera access",
+                "Camera cannot be used because Camera access is denied"
+            )
+        } else {
+            // You can directly ask for the permission.
+            // The registered ActivityResultCallback gets the result of this request.
+            requestPermissions.launch(
+                arrayOf(
+                    permission.CAMERA,
+                    permission.ACCESS_FINE_LOCATION
+                )
             )
         }
     }
