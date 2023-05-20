@@ -3,6 +3,9 @@ package com.example.kidsdrawingapp
 import android.Manifest.permission
 import android.app.AlertDialog
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
@@ -48,7 +51,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import com.example.kidsdrawingapp.ui.theme.KidsDrawingAppTheme
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileOutputStream
 
 
 class MainActivity : ComponentActivity() {
@@ -93,16 +104,6 @@ class MainActivity : ComponentActivity() {
                         ).show()
                     }
                 }
-//                var toastText = "Permission "
-//                toastText += if (isGranted) "granted for " else "denied for "
-//
-//                when(permissionName) {
-//                    permission.ACCESS_FINE_LOCATION -> toastText += "fine location"
-//                    permission.ACCESS_COARSE_LOCATION -> toastText += "coarse location"
-//                    permission.CAMERA -> toastText += "camera"
-//                }
-//
-//                Toast.makeText(this, toastText, Toast.LENGTH_LONG).show()
             }
         }
 
@@ -133,8 +134,6 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun DrawingCanvas() {
-//        val configuration = LocalConfiguration.current
-//        val canvasHeight = (configuration.screenHeightDp * 0.85).dp
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -148,13 +147,6 @@ class MainActivity : ComponentActivity() {
                 },
                 modifier = Modifier.fillMaxHeight(),
             )
-//            Image(
-//                painter = painterResource(id = R.drawable.image),
-//                contentDescription = "canvas background image",
-//                alignment = Alignment.Center,
-//                contentScale = ContentScale.Crop,
-//                modifier = Modifier.fillMaxHeight()
-//            )
             AndroidView(
                 factory = {
                     drawingView = DrawingView(it)
@@ -167,20 +159,15 @@ class MainActivity : ComponentActivity() {
                     .background(Color(0x80FFFFFF))
             )
         }
-
     }
 
     @Preview
     @Composable
     fun ToolArea() {
-//        val configuration = LocalConfiguration.current
-//        val toolHeight = (configuration.screenHeightDp * 0.1).dp
-
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(Color.White),
-//                .height(toolHeight),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Row(modifier = Modifier.weight(1f, true)) {
@@ -279,6 +266,7 @@ class MainActivity : ComponentActivity() {
             BrushDialogButton()
             UndoButton()
             RedoButton()
+            SaveButton()
         }
     }
 
@@ -306,7 +294,12 @@ class MainActivity : ComponentActivity() {
                 "Kids Drawing App needs to Access Your External Storage"
             )
         } else {
-            requestPermissions.launch(arrayOf(permission.READ_EXTERNAL_STORAGE))
+            requestPermissions.launch(
+                arrayOf(
+                    permission.READ_EXTERNAL_STORAGE,
+                    permission.WRITE_EXTERNAL_STORAGE
+                )
+            )
         }
     }
 
@@ -428,6 +421,7 @@ class MainActivity : ComponentActivity() {
             )
         }
     }
+
     @Composable
     fun RedoButton() {
         IconButton(
@@ -445,6 +439,103 @@ class MainActivity : ComponentActivity() {
                 tint = Color.Unspecified
             )
         }
+    }
+
+    @Composable
+    fun SaveButton() {
+        IconButton(
+            onClick = {
+                if (isReadStorageAllowed()) {
+                    lifecycleScope.launch {
+                        val bitmap = getBitmapFromView()
+                        saveBitmapFile(bitmap)
+                    }
+                }
+            },
+            modifier = Modifier
+                .width(50.dp)
+                .height(50.dp)
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_save),
+                contentDescription = "save",
+                tint = Color.Unspecified
+            )
+        }
+    }
+
+    /**
+     * We are calling this method to check the permission status
+     */
+    private fun isReadStorageAllowed(): Boolean {
+        val result = ContextCompat.checkSelfPermission(
+            this, permission.READ_EXTERNAL_STORAGE
+        )
+        return result == PackageManager.PERMISSION_GRANTED
+    }
+
+    /**
+     * Create bitmap from view and returns it
+     */
+    private fun getBitmapFromView(): Bitmap {
+
+        //Define a bitmap with the same size as the view.
+        // CreateBitmap : Returns a mutable bitmap with the specified width and height
+        val returnedBitmap = Bitmap.createBitmap(drawingView.width, drawingView.height, Bitmap.Config.ARGB_8888)
+        //Bind a canvas to it
+        val canvas = Canvas(returnedBitmap)
+        //Get the view's background
+        val bgDrawable = imageView.drawable
+        if (bgDrawable != null) {
+            //has background drawable, then draw it on the canvas
+            imageView.draw(canvas)
+        } else {
+            //does not have background drawable, then draw white background on the canvas
+            canvas.drawColor(android.graphics.Color.WHITE)
+        }
+        // draw the view on the canvas
+        drawingView.draw(canvas)
+        //return the bitmap
+        return returnedBitmap
+    }
+
+    private suspend fun saveBitmapFile(mBitmap: Bitmap?): String {
+        var result = ""
+        withContext(Dispatchers.IO) {
+            if (mBitmap != null) {
+                try {
+                    val bytes = ByteArrayOutputStream()
+                    mBitmap.compress(Bitmap.CompressFormat.PNG, 90, bytes)
+                    val uniqueFileName = (System.currentTimeMillis() / 1000).toString() + ".png"
+                    val file =
+                        File(externalCacheDir?.absoluteFile.toString() + File.separator + "KidsDrawingApp_" + uniqueFileName)
+                    val fo = FileOutputStream(file)
+                    fo.write(bytes.toByteArray())
+                    fo.close()
+
+                    result = file.absolutePath
+
+                    runOnUiThread {
+                        if (result.isNotEmpty()) {
+                            Toast.makeText(
+                                this@MainActivity,
+                                "File saved successfully: $result",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        } else {
+                            Toast.makeText(
+                                this@MainActivity,
+                                "Something went wrong while saving the file.",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        }
+        return result
     }
 }
 
