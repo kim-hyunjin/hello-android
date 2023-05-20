@@ -1,8 +1,14 @@
 package com.example.kidsdrawingapp
 
+import android.Manifest.permission
+import android.app.AlertDialog
+import android.os.Build
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -45,6 +51,31 @@ import com.example.kidsdrawingapp.ui.theme.KidsDrawingAppTheme
 
 class MainActivity : ComponentActivity() {
     lateinit var drawingView: DrawingView
+    private val cameraAndLocationResultLauncher: ActivityResultLauncher<Array<String>> =
+        registerForActivityResult(
+            ActivityResultContracts.RequestMultiplePermissions()
+        ) { permissions ->
+            /**
+            Here it returns a Map of permission name as key with boolean as value
+            We loop through the map to get the value we need which is the boolean
+            value
+             */
+            permissions.entries.forEach {
+                val permissionName = it.key
+                val isGranted = it.value
+                var toastText = "Permission "
+                toastText += if (isGranted) "granted for " else "denied for "
+
+                when(permissionName) {
+                    permission.ACCESS_FINE_LOCATION -> toastText += "fine location"
+                    permission.ACCESS_COARSE_LOCATION -> toastText += "coarse location"
+                    permission.CAMERA -> toastText += "camera"
+                }
+
+                Toast.makeText(this, toastText, Toast.LENGTH_LONG).show()
+            }
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -205,7 +236,26 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun GalleryButton() {
         IconButton(
-            onClick = { /*TODO*/ }, modifier = Modifier
+            onClick = {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && shouldShowRequestPermissionRationale(
+                        permission.CAMERA
+                    )
+                ) {
+                    showRationaleDialog(
+                        " Permission Demo requires camera access",
+                        "Camera cannot be used because Camera access is denied"
+                    )
+                } else {
+                    // You can directly ask for the permission.
+                    // The registered ActivityResultCallback gets the result of this request.
+                    cameraAndLocationResultLauncher.launch(
+                        arrayOf(
+                            permission.CAMERA,
+                            permission.ACCESS_FINE_LOCATION
+                        )
+                    )
+                }
+            }, modifier = Modifier
                 .width(50.dp)
                 .height(50.dp)
         ) {
@@ -215,6 +265,23 @@ class MainActivity : ComponentActivity() {
                 tint = Color.Unspecified
             )
         }
+    }
+
+    /**
+     * Shows rationale dialog for displaying why the app needs permission
+     * Only shown if the user has denied the permission request previously
+     */
+    private fun showRationaleDialog(
+        title: String,
+        message: String,
+    ) {
+        val builder: AlertDialog.Builder = AlertDialog.Builder(this)
+        builder.setTitle(title)
+            .setMessage(message)
+            .setPositiveButton("Cancel") { dialog, _ ->
+                dialog.dismiss()
+            }
+        builder.create().show()
     }
 
     @Composable
