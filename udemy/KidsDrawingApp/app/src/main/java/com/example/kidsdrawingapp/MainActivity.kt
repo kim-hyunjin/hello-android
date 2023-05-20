@@ -2,15 +2,18 @@ package com.example.kidsdrawingapp
 
 import android.Manifest.permission
 import android.app.AlertDialog
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
+import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -40,8 +43,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -52,6 +53,14 @@ import com.example.kidsdrawingapp.ui.theme.KidsDrawingAppTheme
 
 class MainActivity : ComponentActivity() {
     lateinit var drawingView: DrawingView
+    lateinit var imageView: ImageView
+
+    private val openGalleryLauncher: ActivityResultLauncher<Intent> =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK && result.data != null) {
+                imageView.setImageURI(result.data?.data)
+            }
+        }
     private val requestPermissions: ActivityResultLauncher<Array<String>> =
         registerForActivityResult(
             ActivityResultContracts.RequestMultiplePermissions()
@@ -70,6 +79,11 @@ class MainActivity : ComponentActivity() {
                         "Permission granted now yo can read the storage files.",
                         Toast.LENGTH_LONG
                     ).show()
+
+                    val pickIntent =
+                        Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+                    openGalleryLauncher.launch(pickIntent)
+
                 } else {
                     if (permissionName == permission.READ_EXTERNAL_STORAGE) {
                         Toast.makeText(
@@ -126,13 +140,21 @@ class MainActivity : ComponentActivity() {
                 .fillMaxWidth()
                 .fillMaxHeight(),
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.image),
-                contentDescription = "canvas background image",
-                alignment = Alignment.Center,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxHeight()
+            AndroidView(
+                factory = {
+                    imageView = ImageView(it)
+                    imageView.scaleType = ImageView.ScaleType.CENTER_CROP
+                    imageView
+                },
+                modifier = Modifier.fillMaxHeight(),
             )
+//            Image(
+//                painter = painterResource(id = R.drawable.image),
+//                contentDescription = "canvas background image",
+//                alignment = Alignment.Center,
+//                contentScale = ContentScale.Crop,
+//                modifier = Modifier.fillMaxHeight()
+//            )
             AndroidView(
                 factory = {
                     drawingView = DrawingView(it)
