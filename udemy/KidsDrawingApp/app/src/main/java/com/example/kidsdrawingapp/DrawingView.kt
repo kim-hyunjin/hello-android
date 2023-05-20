@@ -23,6 +23,7 @@ class DrawingView(context: Context): View(context) {
     private var mBrushSize: Float = 0f
     private var mColor: Int = Color.BLACK
     private var mPaths = ArrayList<CustomPath>()
+    private var mUndoPaths = ArrayList<CustomPath>()
 
     init {
         setupDrawing()
@@ -43,10 +44,24 @@ class DrawingView(context: Context): View(context) {
      * This function is called when the user desires a color change.
      * This functions sets the color of a store to selected color and able to draw on view using that color.
      *
-     * @param newColor
+     * @param color
      */
     fun setColorForBrush(color: Int) {
         mColor = color
+    }
+
+    fun undoPath() {
+        if (mPaths.size > 0) {
+            mUndoPaths.add(mPaths.removeAt(mPaths.size - 1))
+            invalidate()
+        }
+    }
+    fun redoPath() {
+        if (mUndoPaths.size > 0) {
+            mPaths.add(mUndoPaths.removeAt(mUndoPaths.size - 1))
+            invalidate()
+        }
+
     }
 
     private fun setupDrawing() {

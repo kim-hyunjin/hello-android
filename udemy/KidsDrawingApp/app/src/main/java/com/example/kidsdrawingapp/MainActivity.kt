@@ -6,7 +6,6 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
-import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -41,6 +40,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.painterResource
@@ -277,6 +277,8 @@ class MainActivity : ComponentActivity() {
         ) {
             GalleryButton()
             BrushDialogButton()
+            UndoButton()
+            RedoButton()
         }
     }
 
@@ -406,6 +408,42 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
+        }
+    }
+
+    @Composable
+    fun UndoButton() {
+        IconButton(
+            onClick = {
+                drawingView.undoPath()
+            },
+            modifier = Modifier
+                .width(50.dp)
+                .height(50.dp)
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_undo),
+                contentDescription = "undo",
+                tint = Color.Unspecified
+            )
+        }
+    }
+    @Composable
+    fun RedoButton() {
+        IconButton(
+            onClick = {
+                drawingView.redoPath()
+            },
+            modifier = Modifier
+                .width(50.dp)
+                .height(50.dp)
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_undo),
+                modifier = Modifier.rotate(180f),
+                contentDescription = "redo",
+                tint = Color.Unspecified
+            )
         }
     }
 }
