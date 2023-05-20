@@ -110,7 +110,7 @@ class MainActivity : ComponentActivity() {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Palette()
-            BrushDialogButton()
+            Tools()
         }
     }
 
@@ -192,6 +192,30 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    @Composable
+    fun Tools() {
+        Row(
+            horizontalArrangement = Arrangement.Center
+        ) {
+            GalleryButton()
+            BrushDialogButton()
+        }
+    }
+
+    @Composable
+    fun GalleryButton() {
+        IconButton(
+            onClick = { /*TODO*/ }, modifier = Modifier
+                .width(50.dp)
+                .height(50.dp)
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_gallery),
+                contentDescription = "gallery",
+                tint = Color.Unspecified
+            )
+        }
+    }
 
     @Composable
     fun BrushDialogButton() {
@@ -205,7 +229,11 @@ class MainActivity : ComponentActivity() {
                 .width(50.dp)
                 .height(50.dp)
         ) {
-            Icon(painter = painterResource(id = R.drawable.ic_brush), contentDescription = "brush")
+            Icon(
+                painter = painterResource(id = R.drawable.ic_brush),
+                contentDescription = "brush",
+                tint = Color.Unspecified
+            )
         }
 
     }
