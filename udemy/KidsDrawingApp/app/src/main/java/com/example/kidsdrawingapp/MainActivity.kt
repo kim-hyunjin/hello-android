@@ -6,9 +6,9 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -34,10 +34,13 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -52,7 +55,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.kidsdrawingapp.ui.theme.KidsDrawingAppTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -60,11 +66,14 @@ import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
+import androidx.compose.runtime.livedata.observeAsState
 
 
 class MainActivity : ComponentActivity() {
     lateinit var drawingView: DrawingView
     lateinit var imageView: ImageView
+    lateinit var dialogViewModel: MyViewModel
+
 
     private val openGalleryLauncher: ActivityResultLauncher<Intent> =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -93,7 +102,12 @@ class MainActivity : ComponentActivity() {
 
                     val pickIntent =
                         Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-                    openGalleryLauncher.launch(pickIntent)
+
+                    if (permissionName == permission.READ_EXTERNAL_STORAGE) {
+                        openGalleryLauncher.launch(
+                            pickIntent
+                        )
+                    }
 
                 } else {
                     if (permissionName == permission.READ_EXTERNAL_STORAGE) {
@@ -127,6 +141,45 @@ class MainActivity : ComponentActivity() {
                         }
                     }
 
+
+
+                    dialogViewModel = viewModel()
+
+                    val openDialog by dialogViewModel.open.observeAsState(false)
+
+                    if (openDialog) {
+                        LoadingDialog()
+                    }
+
+                }
+            }
+        }
+    }
+
+    @Preview
+    @Composable
+    fun LoadingDialog() {
+        Dialog(onDismissRequest = { /*TODO*/ }) {
+            Surface(
+                modifier = Modifier
+                    .wrapContentWidth()
+                    .wrapContentHeight(),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .wrapContentWidth()
+                        .wrapContentHeight()
+                        .padding(12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    CircularProgressIndicator(
+                        modifier = Modifier
+                            .width(25.dp)
+                            .height(25.dp)
+                    )
+                    Text("Please wait...")
                 }
             }
         }
@@ -296,29 +349,22 @@ class MainActivity : ComponentActivity() {
         } else {
             requestPermissions.launch(
                 arrayOf(
-                    permission.READ_EXTERNAL_STORAGE,
-                    permission.WRITE_EXTERNAL_STORAGE
+                    permission.READ_EXTERNAL_STORAGE
                 )
             )
         }
     }
 
-    private fun requestCameraPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && shouldShowRequestPermissionRationale(
-                permission.CAMERA
-            )
-        ) {
+    private fun requestWriteStoragePermission() {
+        if (shouldShowRequestPermissionRationale(permission.WRITE_EXTERNAL_STORAGE)) {
             showRationaleDialog(
-                " Permission Demo requires camera access",
-                "Camera cannot be used because Camera access is denied"
+                " Kids Drawing App",
+                "Kids Drawing App needs to Access Your External Storage"
             )
         } else {
-            // You can directly ask for the permission.
-            // The registered ActivityResultCallback gets the result of this request.
             requestPermissions.launch(
                 arrayOf(
-                    permission.CAMERA,
-                    permission.ACCESS_FINE_LOCATION
+                    permission.WRITE_EXTERNAL_STORAGE
                 )
             )
         }
@@ -445,11 +491,16 @@ class MainActivity : ComponentActivity() {
     fun SaveButton() {
         IconButton(
             onClick = {
+                Log.i("save", "onClick!")
                 if (isReadStorageAllowed()) {
+                    Log.i("save", "allowed")
+                    dialogViewModel.openDialog()
                     lifecycleScope.launch {
                         val bitmap = getBitmapFromView()
                         saveBitmapFile(bitmap)
                     }
+                } else {
+                    requestWriteStoragePermission()
                 }
             },
             modifier = Modifier
@@ -481,7 +532,8 @@ class MainActivity : ComponentActivity() {
 
         //Define a bitmap with the same size as the view.
         // CreateBitmap : Returns a mutable bitmap with the specified width and height
-        val returnedBitmap = Bitmap.createBitmap(drawingView.width, drawingView.height, Bitmap.Config.ARGB_8888)
+        val returnedBitmap =
+            Bitmap.createBitmap(drawingView.width, drawingView.height, Bitmap.Config.ARGB_8888)
         //Bind a canvas to it
         val canvas = Canvas(returnedBitmap)
         //Get the view's background
@@ -516,6 +568,7 @@ class MainActivity : ComponentActivity() {
                     result = file.absolutePath
 
                     runOnUiThread {
+                        dialogViewModel.closeDialog()
                         if (result.isNotEmpty()) {
                             Toast.makeText(
                                 this@MainActivity,
@@ -558,4 +611,17 @@ fun BrushCircle(size: BrushSize) {
             .clip(CircleShape)
             .background(Color(0xFF666666))
     )
+}
+
+class MyViewModel : ViewModel() {
+    // Dialog box
+    var open = MutableLiveData<Boolean>()
+
+    fun openDialog() {
+        open.value = true
+    }
+
+    fun closeDialog() {
+        open.value = false
+    }
 }

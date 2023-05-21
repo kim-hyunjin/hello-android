@@ -47,6 +47,15 @@ android {
 }
 
 dependencies {
+// ViewModel
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.1")
+    // ViewModel utilities for Compose
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.4.1")
+    // LiveData
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.4.1")
+    // Saved state module for ViewModel
+    implementation("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.4.1")
+    implementation("androidx.compose.runtime:runtime-livedata")
 
     implementation 'androidx.core:core-ktx:1.9.0'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.3.1'
