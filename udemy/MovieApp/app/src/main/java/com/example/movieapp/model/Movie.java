@@ -2,15 +2,18 @@ package com.example.movieapp.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.databinding.BaseObservable;
 import androidx.databinding.Bindable;
+import androidx.databinding.BindingAdapter;
 import androidx.databinding.library.baseAdapters.BR;
 
 import java.util.List;
 import javax.annotation.Generated;
 
+import com.bumptech.glide.Glide;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 @Generated("jsonschema2pojo")
@@ -186,8 +189,8 @@ public class Movie extends BaseObservable implements Parcelable {
         notifyPropertyChanged(BR.voteCount);
     }
 
-    protected Movie(Parcel in) {
-        in.readList(this.genreIds, Integer.class.getClassLoader());
+    public Movie(Parcel in) {
+//        in.readList(this.genreIds, Integer.class.getClassLoader());
         this.voteCount = (Integer) in.readValue(Integer.class.getClassLoader());
         this.id = (Integer) in.readValue(Integer.class.getClassLoader());
         this.video = (Boolean) in.readValue(Boolean.class.getClassLoader());
@@ -222,7 +225,7 @@ public class Movie extends BaseObservable implements Parcelable {
 
     @Override
     public void writeToParcel(@NonNull Parcel dest, int flags) {
-        dest.writeList(genreIds);
+//        dest.writeList(genreIds);
 
         dest.writeValue(voteCount);
         dest.writeValue(id);
@@ -238,5 +241,12 @@ public class Movie extends BaseObservable implements Parcelable {
         dest.writeValue(overview);
         dest.writeValue(releaseDate);
 
+    }
+
+    @BindingAdapter({"posterPath"})
+    public static void loadImage(ImageView imageView, String imageUrl) {
+        String imagePath = "https://image.tmdb.org/t/p/w500" + imageUrl;
+
+        Glide.with(imageView.getContext()).load(imagePath).into(imageView);
     }
 }
