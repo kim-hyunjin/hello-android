@@ -25,4 +25,11 @@ public class MovieRepository {
         return result.subscribeOn(Schedulers.io())
                 .map(Result::getResults);
     }
+
+    public Single<List<Movie>> searchMovies(String query, Integer page) {
+        MovieDataService movieDataService = RetrofitInstance.getService();
+        Single<Result> result = movieDataService.getMoviesWithKeyword(application.getApplicationContext().getString(R.string.api_key), query, page);
+        return result.subscribeOn(Schedulers.io())
+                .map(Result::getResults);
+    }
 }
