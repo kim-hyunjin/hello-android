@@ -3,11 +3,12 @@ package com.example.movieapp.adapter;
 import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
+import androidx.paging.PagingDataAdapter;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.movieapp.R;
@@ -15,15 +16,13 @@ import com.example.movieapp.databinding.MovieListItemBinding;
 import com.example.movieapp.model.Movie;
 import com.example.movieapp.view.MovieActivity;
 
-import java.util.ArrayList;
 
-public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHolder> {
-    private Context context;
-    private ArrayList<Movie> movieArrayList;
+public class MovieAdapter extends PagingDataAdapter<Movie, MovieAdapter.MovieViewHolder> {
+    private final Context context;
 
-    public MovieAdapter(Context context, ArrayList<Movie> movieArrayList) {
+    public MovieAdapter(@NonNull DiffUtil.ItemCallback<Movie> diffCallback, Context context) {
+        super(diffCallback);
         this.context = context;
-        this.movieArrayList = movieArrayList;
     }
 
     @NonNull
@@ -36,33 +35,25 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
 
     @Override
     public void onBindViewHolder(@NonNull MovieViewHolder holder, int position) {
-        Movie movie = movieArrayList.get(position);
+        Movie movie = getItem(position);
         holder.movieListItemBinding.setMovie(movie);
     }
 
-    @Override
-    public int getItemCount() {
-        return movieArrayList.size();
-    }
-
     public class MovieViewHolder extends RecyclerView.ViewHolder {
-        private MovieListItemBinding movieListItemBinding;
+        private final MovieListItemBinding movieListItemBinding;
 
         public MovieViewHolder(MovieListItemBinding movieListItemBinding) {
             super(movieListItemBinding.getRoot());
             this.movieListItemBinding = movieListItemBinding;
-            movieListItemBinding.getRoot().setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    int position = getAdapterPosition();
+            movieListItemBinding.getRoot().setOnClickListener(v -> {
+                int position = getBindingAdapterPosition();
 
-                    if (position != RecyclerView.NO_POSITION) {
-                        Movie selectedMovie = movieArrayList.get(position);
+                if (position != RecyclerView.NO_POSITION) {
+                    Movie selectedMovie = getItem(position);
 
-                        Intent i = new Intent(context, MovieActivity.class);
-                        i.putExtra("movie", selectedMovie);
-                        context.startActivity(i);
-                    }
+                    Intent i = new Intent(context, MovieActivity.class);
+                    i.putExtra("movie", selectedMovie);
+                    context.startActivity(i);
                 }
             });
         }
