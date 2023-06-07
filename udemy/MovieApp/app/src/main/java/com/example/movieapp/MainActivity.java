@@ -2,6 +2,7 @@ package com.example.movieapp;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DefaultItemAnimator;
@@ -13,6 +14,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import android.annotation.SuppressLint;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.example.movieapp.adapter.MovieAdapter;
 import com.example.movieapp.databinding.ActivityMainBinding;
@@ -21,6 +23,8 @@ import com.example.movieapp.viewmodel.MainActivityViewModel;
 
 import java.util.Objects;
 
+import io.reactivex.rxjava3.disposables.Disposable;
+
 public class MainActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
@@ -28,6 +32,8 @@ public class MainActivity extends AppCompatActivity {
     private SwipeRefreshLayout swipeRefreshLayout;
     private MainActivityViewModel mainActivityViewModel;
     private ActivityMainBinding activityMainBinding;
+
+    private Disposable disposable;
 
 
     @SuppressLint("CheckResult")
@@ -42,9 +48,10 @@ public class MainActivity extends AppCompatActivity {
 
         initRecyclerviewAndAdapter();
         initSwipeRefreshLayout();
+        initSearchView();
 
         // subscribe to paging data
-        mainActivityViewModel.moviePagingDataFlowable.subscribe(moviePagingData -> movieAdapter.submitData(getLifecycle(), moviePagingData));
+        subscribeMoviePagingData();
     }
 
     private void initRecyclerviewAndAdapter() {
@@ -75,6 +82,45 @@ public class MainActivity extends AppCompatActivity {
     private void initSwipeRefreshLayout() {
         swipeRefreshLayout = activityMainBinding.swipeLayout;
         swipeRefreshLayout.setColorSchemeResources(R.color.teal_200);
-        swipeRefreshLayout.setOnRefreshListener(() -> movieAdapter.refresh());
+        swipeRefreshLayout.setOnRefreshListener(() -> {
+            if (disposable != null) disposable.dispose();
+            disposable = mainActivityViewModel.moviePagingDataFlowable.retry().subscribe(moviePagingData -> {
+                movieAdapter.submitData(getLifecycle(), moviePagingData);
+                swipeRefreshLayout.setRefreshing(false);
+            });
+        });
+    }
+
+    private void initSearchView() {
+        activityMainBinding.searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                if (disposable != null) disposable.dispose();
+                if (query.trim().isEmpty()) {
+                    mainActivityViewModel.getPopulars();
+                } else {
+                    mainActivityViewModel.searchMovies(query);
+                }
+                subscribeMoviePagingData();
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
+
+        activityMainBinding.searchView.setOnCloseListener(() -> {
+            Log.i("SearchView", "onClose");
+            if (disposable != null) disposable.dispose();
+            mainActivityViewModel.getPopulars();
+            subscribeMoviePagingData();
+            return false;
+        });
+    }
+
+    private void subscribeMoviePagingData() {
+        disposable = mainActivityViewModel.moviePagingDataFlowable.subscribe(moviePagingData -> movieAdapter.submitData(getLifecycle(), moviePagingData));
     }
 }
