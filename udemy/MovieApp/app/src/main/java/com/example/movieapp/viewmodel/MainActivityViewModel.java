@@ -1,6 +1,7 @@
 package com.example.movieapp.viewmodel;
 
 import android.app.Application;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -26,15 +27,27 @@ public class MainActivityViewModel extends AndroidViewModel {
     private final MovieRepository movieRepository;
     public Flowable<PagingData<Movie>> moviePagingDataFlowable;
 
+    private String searchKeyword;
+
     public MainActivityViewModel(@NonNull Application application) {
         super(application);
         movieRepository = new MovieRepository(application);
-        init();
+        getPopulars();
     }
 
+    public void getPopulars() {
+        initPagingSource(SourceType.POPULAR);
+        Log.i("getPopulars", "getPopulars called");
+    }
 
-    private void init() {
-        MoviePagingSource moviePagingSource = new MoviePagingSource();
+    public void searchMovies(String searchKeyword) {
+        this.searchKeyword = searchKeyword;
+        initPagingSource(SourceType.SEARCH);
+        Log.i("searchMovies", searchKeyword);
+    }
+
+    private void initPagingSource(SourceType type) {
+        MoviePagingSource moviePagingSource = new MoviePagingSource(type);
 
         Pager<Integer, Movie> pager = new Pager<>(
                 new PagingConfig(20, 20, false, 20, 20*499),
@@ -46,8 +59,18 @@ public class MainActivityViewModel extends AndroidViewModel {
         PagingRx.cachedIn(moviePagingDataFlowable, coroutineScope);
     }
 
-    class MoviePagingSource extends RxPagingSource<Integer, Movie> {
+    private enum SourceType {
+        POPULAR,
+        SEARCH
+    }
 
+    private class MoviePagingSource extends RxPagingSource<Integer, Movie> {
+
+        SourceType type;
+
+        public MoviePagingSource(SourceType type) {
+            this.type = type;
+        }
 
         @Nullable
         @Override
@@ -61,8 +84,13 @@ public class MainActivityViewModel extends AndroidViewModel {
             try {
 
                 int page = loadParams.getKey() != null ? loadParams.getKey() : 1;
-
-                return movieRepository.getMovies(page)
+                Single<List<Movie>> moviesSource;
+                if (type == SourceType.POPULAR) {
+                    moviesSource = movieRepository.getMovies(page);
+                } else {
+                    moviesSource = movieRepository.searchMovies(searchKeyword, page);
+                }
+                return moviesSource
                         .map(movies -> toLoadResult(movies, page))
                         .onErrorReturn(LoadResult.Error::new);
             } catch (Exception e) {
