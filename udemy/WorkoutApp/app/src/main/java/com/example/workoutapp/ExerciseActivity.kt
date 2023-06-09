@@ -34,15 +34,34 @@ class ExerciseActivity: AppCompatActivity() {
     }
 
     private fun setRestView() {
-        binding?.flRestView?.visibility = View.VISIBLE
-        binding?.tvTitle?.visibility = View.VISIBLE
-        binding?.tvExerciseName?.visibility = View.INVISIBLE
-        binding?.flExerciseView?.visibility = View.INVISIBLE
-        binding?.ivImage?.visibility = View.INVISIBLE
+        setRestViewVisibility(View.VISIBLE)
+        setExerciseVIewVisibility(View.INVISIBLE)
 
+        binding?.tvUpcomingExerciseName?.text = exerciseList!![currentExercisePosition + 1].name
         setRestProgressBar()
     }
 
+    private fun setExerciseView() {
+        setRestViewVisibility(View.INVISIBLE)
+        setExerciseVIewVisibility(View.VISIBLE)
+
+        val currentExercise = exerciseList!![currentExercisePosition]
+        binding?.ivImage?.setImageResource(currentExercise.image)
+        binding?.tvExerciseName?.text = currentExercise.name
+        setExerciseProgressBar()
+    }
+
+    private fun setRestViewVisibility(visibility: Int) {
+        binding?.flRestView?.visibility = visibility
+        binding?.tvTitle?.visibility = visibility
+        binding?.tvUpcomingExerciseName?.visibility = visibility
+        binding?.upcomingLabel?.visibility = visibility
+    }
+    private fun setExerciseVIewVisibility(visibility: Int) {
+        binding?.tvExerciseName?.visibility = visibility
+        binding?.flExerciseView?.visibility = visibility
+        binding?.ivImage?.visibility = visibility
+    }
     private fun setRestProgressBar() {
         if (restTimer != null) {
             restTimer!!.cancel()
@@ -64,19 +83,6 @@ class ExerciseActivity: AppCompatActivity() {
 
         }.start()
 
-    }
-
-    private fun setExerciseView() {
-        binding?.flRestView?.visibility = View.INVISIBLE
-        binding?.tvTitle?.visibility = View.INVISIBLE
-        binding?.tvExerciseName?.visibility = View.VISIBLE
-        binding?.flExerciseView?.visibility = View.VISIBLE
-        binding?.ivImage?.visibility = View.VISIBLE
-
-        val currentExercise = exerciseList!![currentExercisePosition]
-        binding?.ivImage?.setImageResource(currentExercise.image)
-        binding?.tvExerciseName?.text = currentExercise.name
-        setExerciseProgressBar()
     }
 
     private fun setExerciseProgressBar() {
