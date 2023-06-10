@@ -160,4 +160,15 @@
                 tools:text="10" />
         </LinearLayout>
     </FrameLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvExerciseStatus"
+        android:layout_width="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/flExerciseView"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_margin="5dp" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

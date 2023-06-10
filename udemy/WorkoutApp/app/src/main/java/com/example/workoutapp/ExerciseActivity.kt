@@ -8,6 +8,7 @@ import android.speech.tts.TextToSpeech
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.workoutapp.databinding.ActivityExerciseBinding
 import com.example.workoutapp.models.ExerciseModel
 import java.util.Locale
@@ -22,6 +23,7 @@ class ExerciseActivity: AppCompatActivity(), TextToSpeech.OnInitListener {
     private var exerciseProgress = 0
     private var tts: TextToSpeech? = null
     private var mediaPlayer: MediaPlayer? = null
+    private var exerciseAdapter: ExerciseStatusAdapter? = null
 
 
     private var exerciseList: ArrayList<ExerciseModel>? = null // We will initialize the list later.
@@ -44,7 +46,16 @@ class ExerciseActivity: AppCompatActivity(), TextToSpeech.OnInitListener {
         mediaPlayer = MediaPlayer.create(applicationContext, soundURI)
         mediaPlayer?.isLooping = false
 
+        setRecyclerView()
         setRestView()
+    }
+
+    private fun setRecyclerView() {
+        binding?.rvExerciseStatus?.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        exerciseAdapter = ExerciseStatusAdapter(exerciseList!!)
+
+        // Adapter class is attached to recycler view
+        binding?.rvExerciseStatus?.adapter = exerciseAdapter
     }
 
     private fun setRestView() {
@@ -93,6 +104,8 @@ class ExerciseActivity: AppCompatActivity(), TextToSpeech.OnInitListener {
 
             override fun onFinish() {
                 currentExercisePosition++
+                exerciseList!![currentExercisePosition].isSelected = true
+                exerciseAdapter?.notifyItemChanged(currentExercisePosition)
                 setExerciseView()
             }
 
@@ -117,6 +130,9 @@ class ExerciseActivity: AppCompatActivity(), TextToSpeech.OnInitListener {
 
             override fun onFinish() {
                 if (currentExercisePosition < exerciseList!!.size - 1) {
+                    exerciseList!![currentExercisePosition].isSelected = false
+                    exerciseList!![currentExercisePosition].isCompleted = true
+                    exerciseAdapter?.notifyItemChanged(currentExercisePosition)
                     setRestView()
                 } else {
                     Toast.makeText(
