@@ -2,20 +2,24 @@ package com.example.workoutapp
 
 import android.os.Bundle
 import android.os.CountDownTimer
+import android.speech.tts.TextToSpeech
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.workoutapp.databinding.ActivityExerciseBinding
 import com.example.workoutapp.models.ExerciseModel
+import java.util.Locale
 
 const val MAX_REST_PROGRESS = 10L
 const val MAX_EXERCISE_PROGRESS = 30L
-class ExerciseActivity: AppCompatActivity() {
+class ExerciseActivity: AppCompatActivity(), TextToSpeech.OnInitListener {
     private var binding: ActivityExerciseBinding? = null
     private var restTimer: CountDownTimer? = null
     private var restProgress = 0
     private var exerciseTimer: CountDownTimer? = null
     private var exerciseProgress = 0
+    private var tts: TextToSpeech? = null
+
 
     private var exerciseList: ArrayList<ExerciseModel>? = null // We will initialize the list later.
     private var currentExercisePosition = -1 // Current Position of Exercise.
@@ -29,6 +33,7 @@ class ExerciseActivity: AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         exerciseList = Constants.defaultExerciseList()
+        tts = TextToSpeech(this, this)
 
         setRestView()
     }
@@ -48,6 +53,7 @@ class ExerciseActivity: AppCompatActivity() {
         val currentExercise = exerciseList!![currentExercisePosition]
         binding?.ivImage?.setImageResource(currentExercise.image)
         binding?.tvExerciseName?.text = currentExercise.name
+        tts?.speak(currentExercise.name, TextToSpeech.QUEUE_FLUSH, null, "")
         setExerciseProgressBar()
     }
 
@@ -119,7 +125,16 @@ class ExerciseActivity: AppCompatActivity() {
             restTimer!!.cancel()
             restProgress = 0
         }
+        tts?.stop()
+        tts?.shutdown()
         binding = null
         super.onDestroy()
+    }
+
+    override fun onInit(status: Int) {
+        if (status == TextToSpeech.SUCCESS) {
+            tts?.language = Locale.US
+
+        }
     }
 }
