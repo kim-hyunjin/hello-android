@@ -3,22 +3,31 @@ package com.example.workoutapp.models
 import java.math.BigDecimal
 import java.math.RoundingMode
 
+enum class UNIT_TYPE {
+    METRIC,
+    US
+}
 class BMI
 /**
  * @param height unit - meter
  * @param weight: unit - kg
- */(height: Float, weight: Float) {
+ */(height: Float, weight: Float, type: UNIT_TYPE) {
     val bmi: Float
     val bmiLabel: String
     val bmiDescription: String
     val displayBmiValue: String
 
     init {
-        bmi = weight / (height * height)
+        bmi = if (type == UNIT_TYPE.METRIC) {
+            weight / (height * height)
+        } else {
+            // This is the Formula for US UNITS result.
+            // Reference Link : https://www.cdc.gov/healthyweight/assessing/bmi/childrens_bmi/childrens_bmi_formula.html
+            703 * (weight / (height * height))
+        }
 
         // This is used to round the result value to 2 decimal values after "."
         displayBmiValue = BigDecimal(bmi.toDouble()).setScale(2, RoundingMode.HALF_EVEN).toString()
-
         if (bmi.compareTo(15f) <= 0) {
             bmiLabel = "Very severely underweight"
             bmiDescription = "Oops! You really need to take better care of yourself! Eat more!"

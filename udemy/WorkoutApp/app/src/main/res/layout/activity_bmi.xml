@@ -1,8 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+<data>
+    <import type="android.view.View"/>
+    <variable
+        name="bmi"
+        type="com.example.workoutapp.models.BMI" />
+    <variable
+        name="isMetric"
+        type="java.lang.Boolean" />
+</data>
+
+<RelativeLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".BMIActivity">
@@ -51,7 +62,6 @@
             android:textStyle="bold" />
     </RadioGroup>
 
-    <!--positioned below toolbar-->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/tilMetricUnitWeight"
         android:layout_margin="10dp"
@@ -60,8 +70,9 @@
         android:layout_below="@id/rgUnits"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
+        android:layout_height="wrap_content"
+        android:visibility="@{isMetric ? View.VISIBLE : View.INVISIBLE}"
+        >
         <androidx.appcompat.widget.AppCompatEditText
             android:id="@+id/etMetricUnitWeight"
             android:layout_width="match_parent"
@@ -70,7 +81,6 @@
             android:inputType="numberDecimal"
             android:textSize="16sp" />
     </com.google.android.material.textfield.TextInputLayout>
-    <!--positioned below tilMetricUnitWeight-->
     <com.google.android.material.textfield.TextInputLayout
         android:layout_below="@id/tilMetricUnitWeight"
         android:id="@+id/tilMetricUnitHeight"
@@ -81,9 +91,9 @@
         android:layout_marginTop="10dp"
         android:layout_margin="10dp"
         android:layout_height="wrap_content"
+        android:visibility="@{isMetric ? View.VISIBLE : View.INVISIBLE}"
         tools:visibility="invisible"
         >
-
         <androidx.appcompat.widget.AppCompatEditText
             android:id="@+id/etMetricUnitHeight"
             android:layout_width="match_parent"
@@ -93,6 +103,27 @@
             android:textSize="16sp" />
     </com.google.android.material.textfield.TextInputLayout>
 
+    <!-- us  -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilUsMetricUnitWeight"
+        android:layout_margin="10dp"
+        app:boxStrokeColor="@color/colorAccent"
+        app:hintTextColor="@color/colorAccent"
+        android:layout_below="@id/rgUnits"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="@{isMetric ? View.GONE : View.VISIBLE}"
+        >
+
+        <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/etUsMetricUnitWeight"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/weight_in_lbs"
+            android:inputType="numberDecimal"
+            android:textSize="16sp" />
+    </com.google.android.material.textfield.TextInputLayout>
     <com.google.android.material.textfield.TextInputLayout
         android:layout_below="@id/tilMetricUnitWeight"
         android:id="@+id/tilMetricUsUnitHeightFeet"
@@ -102,12 +133,11 @@
         android:layout_width="wrap_content"
         android:layout_marginTop="10dp"
         android:layout_alignParentStart="true"
-        android:visibility="gone"
+        android:visibility="@{isMetric ? View.GONE : View.VISIBLE}"
         tools:visibility="visible"
         android:layout_toStartOf="@id/view"
         android:layout_margin="10dp"
         android:layout_height="wrap_content">
-
         <androidx.appcompat.widget.AppCompatEditText
             android:id="@+id/etUsMetricUnitHeightFeet"
             android:layout_width="match_parent"
@@ -116,6 +146,7 @@
             android:inputType="numberDecimal"
             android:textSize="16sp" />
     </com.google.android.material.textfield.TextInputLayout>
+
     <View
         android:id="@+id/view"
         android:layout_width="0dp"
@@ -130,14 +161,13 @@
         app:hintTextColor="@color/colorAccent"
         android:layout_alignParentEnd="true"
         android:layout_toEndOf="@id/view"
-        android:visibility="gone"
+        android:visibility="@{isMetric ? View.GONE : View.VISIBLE}"
         tools:visibility="visible"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="wrap_content"
         android:layout_marginTop="10dp"
         android:layout_margin="10dp"
         android:layout_height="wrap_content">
-
         <androidx.appcompat.widget.AppCompatEditText
             android:id="@+id/etUsMetricUnitHeightInch"
             android:layout_width="match_parent"
@@ -147,7 +177,6 @@
             android:textSize="16sp" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <!--positioned below tilMetricUnitHeight-->
     <LinearLayout
         android:padding="10dp"
         android:layout_below="@id/tilMetricUnitHeight"
@@ -176,6 +205,7 @@
             android:gravity="center"
             android:textSize="18sp"
             android:textStyle="bold"
+            android:text="@{bmi.displayBmiValue}"
             tools:text="15.00" />
 
         <TextView
@@ -185,6 +215,7 @@
             android:layout_marginTop="5dp"
             android:gravity="center"
             android:textSize="18sp"
+            android:text="@{bmi.bmiLabel}"
             tools:text="Normal" />
 
         <TextView
@@ -194,9 +225,9 @@
             android:layout_marginTop="5dp"
             android:gravity="center"
             android:textSize="18sp"
+            android:text="@{bmi.bmiDescription}"
             tools:text="Normal" />
     </LinearLayout>
-    <!--positioned below llDiplayBMIResult-->
     <Button
         android:layout_below="@id/llDiplayBMIResult"
         android:id="@+id/btnCalculateUnits"
@@ -212,3 +243,4 @@
         android:textColor="#FFFFFF"
         android:textSize="18sp" />
 </RelativeLayout>
+</layout>
