@@ -1,5 +1,6 @@
 package com.example.workoutapp
 
+import android.app.Dialog
 import android.content.Intent
 import android.media.MediaPlayer
 import android.net.Uri
@@ -10,6 +11,7 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.workoutapp.databinding.ActivityExerciseBinding
+import com.example.workoutapp.databinding.DialogCustomBackConfirmationBinding
 import com.example.workoutapp.models.ExerciseModel
 import java.util.Locale
 
@@ -36,6 +38,9 @@ class ExerciseActivity: AppCompatActivity(), TextToSpeech.OnInitListener {
 
         setSupportActionBar(binding?.toolbarExercise)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        binding?.toolbarExercise?.setNavigationOnClickListener {
+            customDialogForBackButton()
+        }
 
         exerciseList = Constants.defaultExerciseList()
 
@@ -48,6 +53,23 @@ class ExerciseActivity: AppCompatActivity(), TextToSpeech.OnInitListener {
 
         setRecyclerView()
         setRestView()
+
+    }
+
+    private fun customDialogForBackButton() {
+        val customDialog = Dialog(this)
+        val dialogBinding = DialogCustomBackConfirmationBinding.inflate(layoutInflater)
+        customDialog.setContentView(dialogBinding.root)
+        customDialog.setCanceledOnTouchOutside(false)
+
+        dialogBinding.tvYes.setOnClickListener {
+            this@ExerciseActivity.finish()
+            customDialog.dismiss()
+        }
+        dialogBinding.tvNo.setOnClickListener {
+            customDialog.dismiss()
+        }
+        customDialog.show()
     }
 
     private fun setRecyclerView() {
