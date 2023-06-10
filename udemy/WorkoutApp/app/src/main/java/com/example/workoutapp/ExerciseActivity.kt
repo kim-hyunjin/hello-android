@@ -1,5 +1,7 @@
 package com.example.workoutapp
 
+import android.media.MediaPlayer
+import android.net.Uri
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.speech.tts.TextToSpeech
@@ -19,6 +21,7 @@ class ExerciseActivity: AppCompatActivity(), TextToSpeech.OnInitListener {
     private var exerciseTimer: CountDownTimer? = null
     private var exerciseProgress = 0
     private var tts: TextToSpeech? = null
+    private var mediaPlayer: MediaPlayer? = null
 
 
     private var exerciseList: ArrayList<ExerciseModel>? = null // We will initialize the list later.
@@ -33,7 +36,13 @@ class ExerciseActivity: AppCompatActivity(), TextToSpeech.OnInitListener {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         exerciseList = Constants.defaultExerciseList()
+
         tts = TextToSpeech(this, this)
+
+        val soundURI =
+            Uri.parse("android.resource://com.example.workoutapp/" + R.raw.press_start)
+        mediaPlayer = MediaPlayer.create(applicationContext, soundURI)
+        mediaPlayer?.isLooping = false
 
         setRestView()
     }
@@ -41,7 +50,7 @@ class ExerciseActivity: AppCompatActivity(), TextToSpeech.OnInitListener {
     private fun setRestView() {
         setRestViewVisibility(View.VISIBLE)
         setExerciseVIewVisibility(View.INVISIBLE)
-
+        mediaPlayer?.start()
         binding?.tvUpcomingExerciseName?.text = exerciseList!![currentExercisePosition + 1].name
         setRestProgressBar()
     }
@@ -127,6 +136,7 @@ class ExerciseActivity: AppCompatActivity(), TextToSpeech.OnInitListener {
         }
         tts?.stop()
         tts?.shutdown()
+        mediaPlayer?.stop()
         binding = null
         super.onDestroy()
     }
