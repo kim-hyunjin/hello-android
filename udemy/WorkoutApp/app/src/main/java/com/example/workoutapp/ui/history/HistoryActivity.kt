@@ -1,13 +1,14 @@
 package com.example.workoutapp.ui.history
 
 import android.os.Bundle
-import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.workoutapp.WorkOutApp
 import com.example.workoutapp.data.history.HistoryDao
 import com.example.workoutapp.databinding.ActivityHistoryBinding
+import com.example.workoutapp.utils.extensions.gone
+import com.example.workoutapp.utils.extensions.visible
 import kotlinx.coroutines.launch
 
 class HistoryActivity: AppCompatActivity() {
@@ -29,9 +30,9 @@ class HistoryActivity: AppCompatActivity() {
         lifecycleScope.launch {
             historyDao.fetchALLDates().collect {
                 if (it.isNotEmpty()) {
-                    binding?.tvHistory?.visibility = View.VISIBLE
-                    binding?.rvHistory?.visibility = View.VISIBLE
-                    binding?.tvNoDataAvailable?.visibility = View.GONE
+                    binding?.tvHistory?.visible()
+                    binding?.rvHistory?.visible()
+                    binding?.tvNoDataAvailable?.gone()
 
                     binding?.rvHistory?.layoutManager = LinearLayoutManager(this@HistoryActivity)
                     val dates = ArrayList<String>(it.map { historyEntity -> historyEntity.date }.toList())
@@ -39,9 +40,9 @@ class HistoryActivity: AppCompatActivity() {
                     binding?.rvHistory?.adapter = historyAdapter
 
                 } else {
-                    binding?.tvHistory?.visibility = View.GONE
-                    binding?.rvHistory?.visibility = View.GONE
-                    binding?.tvNoDataAvailable?.visibility = View.VISIBLE
+                    binding?.tvHistory?.gone()
+                    binding?.rvHistory?.gone()
+                    binding?.tvNoDataAvailable?.visible()
                 }
             }
         }

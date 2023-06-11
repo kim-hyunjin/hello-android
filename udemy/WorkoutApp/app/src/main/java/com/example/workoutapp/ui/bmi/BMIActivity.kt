@@ -1,7 +1,6 @@
 package com.example.workoutapp.ui.bmi
 
 import android.os.Bundle
-import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.workoutapp.databinding.ActivityBmiBinding
@@ -9,6 +8,8 @@ import com.example.workoutapp.data.bmi.BMI
 import androidx.databinding.DataBindingUtil
 import com.example.workoutapp.R
 import com.example.workoutapp.data.bmi.UNIT_TYPE
+import com.example.workoutapp.utils.extensions.invisible
+import com.example.workoutapp.utils.extensions.visible
 
 class BMIActivity : AppCompatActivity() {
 
@@ -36,7 +37,7 @@ class BMIActivity : AppCompatActivity() {
                 binding?.etUsMetricUnitHeightInch?.text!!.clear()
             }
             binding?.isMetric = currentUnit == UNIT_TYPE.METRIC
-            binding?.llDiplayBMIResult?.visibility = View.INVISIBLE
+            binding?.llDiplayBMIResult?.invisible()
         }
 
         binding?.btnCalculateUnits?.setOnClickListener {
@@ -61,7 +62,7 @@ class BMIActivity : AppCompatActivity() {
                     usUnitHeightValueInch.toFloat() + usUnitHeightValueFeet.toFloat() * 12
             }
             binding?.bmi = BMI(height = heightValue, weight = weightValue, currentUnit)
-            binding?.llDiplayBMIResult?.visibility = View.VISIBLE
+            binding?.llDiplayBMIResult?.visible()
         } else {
             Toast.makeText(this@BMIActivity, "Please enter valid values.", Toast.LENGTH_SHORT)
                 .show()
