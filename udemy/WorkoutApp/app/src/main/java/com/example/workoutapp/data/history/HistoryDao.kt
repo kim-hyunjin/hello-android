@@ -1,4 +1,4 @@
-package com.example.workoutapp.database
+package com.example.workoutapp.data.history
 
 import androidx.room.Dao
 import androidx.room.Insert

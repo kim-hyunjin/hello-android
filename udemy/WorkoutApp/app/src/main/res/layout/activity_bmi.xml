@@ -7,7 +7,7 @@
     <import type="android.view.View"/>
     <variable
         name="bmi"
-        type="com.example.workoutapp.models.BMI" />
+        type="com.example.workoutapp.data.bmi.BMI" />
     <variable
         name="isMetric"
         type="java.lang.Boolean" />
@@ -16,7 +16,7 @@
 <RelativeLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".BMIActivity">
+    tools:context=".ui.bmi.BMIActivity">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar_bmi_activity"

@@ -1,8 +1,11 @@
-package com.example.workoutapp
+package com.example.workoutapp.ui.main
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import com.example.workoutapp.ui.bmi.BMIActivity
+import com.example.workoutapp.ui.exercise.ExerciseActivity
+import com.example.workoutapp.ui.history.HistoryActivity
 import com.example.workoutapp.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {

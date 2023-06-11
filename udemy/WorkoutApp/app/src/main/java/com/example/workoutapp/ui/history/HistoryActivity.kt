@@ -1,11 +1,12 @@
-package com.example.workoutapp
+package com.example.workoutapp.ui.history
 
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.workoutapp.database.HistoryDao
+import com.example.workoutapp.WorkOutApp
+import com.example.workoutapp.data.history.HistoryDao
 import com.example.workoutapp.databinding.ActivityHistoryBinding
 import kotlinx.coroutines.launch
 

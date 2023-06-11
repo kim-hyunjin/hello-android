@@ -1,4 +1,4 @@
-package com.example.workoutapp
+package com.example.workoutapp.ui.exercise
 
 import android.app.Dialog
 import android.content.Intent
@@ -10,13 +10,16 @@ import android.speech.tts.TextToSpeech
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.workoutapp.Constants
+import com.example.workoutapp.ui.finish.FinishActivity
+import com.example.workoutapp.R
 import com.example.workoutapp.databinding.ActivityExerciseBinding
 import com.example.workoutapp.databinding.DialogCustomBackConfirmationBinding
-import com.example.workoutapp.models.ExerciseModel
+import com.example.workoutapp.data.exercise.ExerciseModel
 import java.util.Locale
 
-const val MAX_REST_PROGRESS = 10L
-const val MAX_EXERCISE_PROGRESS = 30L
+const val MAX_REST_PROGRESS = 1L
+const val MAX_EXERCISE_PROGRESS = 3L
 class ExerciseActivity: AppCompatActivity(), TextToSpeech.OnInitListener {
     private var binding: ActivityExerciseBinding? = null
     private var restTimer: CountDownTimer? = null

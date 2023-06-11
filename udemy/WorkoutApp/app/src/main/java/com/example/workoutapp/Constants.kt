@@ -1,6 +1,6 @@
 package com.example.workoutapp
 
-import com.example.workoutapp.models.ExerciseModel
+import com.example.workoutapp.data.exercise.ExerciseModel
 import java.util.*
 
 /**

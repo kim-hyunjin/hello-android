@@ -1,13 +1,14 @@
-package com.example.workoutapp
+package com.example.workoutapp.ui.bmi
 
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.workoutapp.databinding.ActivityBmiBinding
-import com.example.workoutapp.models.BMI
+import com.example.workoutapp.data.bmi.BMI
 import androidx.databinding.DataBindingUtil
-import com.example.workoutapp.models.UNIT_TYPE
+import com.example.workoutapp.R
+import com.example.workoutapp.data.bmi.UNIT_TYPE
 
 class BMIActivity : AppCompatActivity() {
 

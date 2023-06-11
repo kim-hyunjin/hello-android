@@ -1,4 +1,4 @@
-package com.example.workoutapp.models
+package com.example.workoutapp.data.bmi
 
 import java.math.BigDecimal
 import java.math.RoundingMode

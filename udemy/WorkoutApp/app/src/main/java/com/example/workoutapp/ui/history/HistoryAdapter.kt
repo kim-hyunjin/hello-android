@@ -1,4 +1,4 @@
-package com.example.workoutapp
+package com.example.workoutapp.ui.history
 
 import android.graphics.Color
 import android.view.LayoutInflater

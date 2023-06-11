@@ -1,12 +1,13 @@
-package com.example.workoutapp
+package com.example.workoutapp.ui.exercise
 
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.example.workoutapp.R
 import com.example.workoutapp.databinding.ItemExerciseStatusBinding
-import com.example.workoutapp.models.ExerciseModel
+import com.example.workoutapp.data.exercise.ExerciseModel
 
 class ExerciseStatusAdapter(val items: ArrayList<ExerciseModel>): RecyclerView.Adapter<ExerciseStatusAdapter.ViewHolder>() {
     class ViewHolder(binding: ItemExerciseStatusBinding): RecyclerView.ViewHolder(binding.root) {
@@ -35,12 +36,16 @@ class ExerciseStatusAdapter(val items: ArrayList<ExerciseModel>): RecyclerView.A
             }
             exercise.isCompleted -> {
                 holder.tvItem.background =
-                    ContextCompat.getDrawable(holder.itemView.context, R.drawable.item_circular_color_accent_background)
+                    ContextCompat.getDrawable(holder.itemView.context,
+                        R.drawable.item_circular_color_accent_background
+                    )
                 holder.tvItem.setTextColor(Color.parseColor("#FFFFFF"))
             }
             else -> {
                 holder.tvItem.background =
-                    ContextCompat.getDrawable(holder.itemView.context, R.drawable.item_circular_color_gray_background)
+                    ContextCompat.getDrawable(holder.itemView.context,
+                        R.drawable.item_circular_color_gray_background
+                    )
                 holder.tvItem.setTextColor(Color.parseColor("#212121"))
             }
         }

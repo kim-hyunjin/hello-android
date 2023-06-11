@@ -1,4 +1,4 @@
-package com.example.workoutapp.extensions
+package com.example.workoutapp.utils.extensions
 
 import java.text.SimpleDateFormat
 import java.util.*
