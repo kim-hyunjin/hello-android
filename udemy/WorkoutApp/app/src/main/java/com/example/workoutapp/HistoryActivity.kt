@@ -1,8 +1,13 @@
 package com.example.workoutapp
 
 import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.workoutapp.database.HistoryDao
 import com.example.workoutapp.databinding.ActivityHistoryBinding
+import kotlinx.coroutines.launch
 
 class HistoryActivity: AppCompatActivity() {
 
@@ -15,6 +20,30 @@ class HistoryActivity: AppCompatActivity() {
         setSupportActionBar(binding?.toolbarHistoryActivity)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = "HISTORY"
+        val dao = (application as WorkOutApp).db.historyDao()
+        getAllHistoryData(dao)
+    }
+
+    private fun getAllHistoryData(historyDao: HistoryDao) {
+        lifecycleScope.launch {
+            historyDao.fetchALLDates().collect {
+                if (it.isNotEmpty()) {
+                    binding?.tvHistory?.visibility = View.VISIBLE
+                    binding?.rvHistory?.visibility = View.VISIBLE
+                    binding?.tvNoDataAvailable?.visibility = View.GONE
+
+                    binding?.rvHistory?.layoutManager = LinearLayoutManager(this@HistoryActivity)
+                    val dates = ArrayList<String>(it.map { historyEntity -> historyEntity.date }.toList())
+                    val historyAdapter = HistoryAdapter(dates)
+                    binding?.rvHistory?.adapter = historyAdapter
+
+                } else {
+                    binding?.tvHistory?.visibility = View.GONE
+                    binding?.rvHistory?.visibility = View.GONE
+                    binding?.tvNoDataAvailable?.visibility = View.VISIBLE
+                }
+            }
+        }
     }
 
     override fun onDestroy() {
