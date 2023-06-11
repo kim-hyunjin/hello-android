@@ -8,7 +8,6 @@ import android.os.Bundle
 import android.os.CountDownTimer
 import android.speech.tts.TextToSpeech
 import android.view.View
-import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.workoutapp.Constants
 import com.example.workoutapp.ui.finish.FinishActivity
@@ -16,12 +15,13 @@ import com.example.workoutapp.R
 import com.example.workoutapp.databinding.ActivityExerciseBinding
 import com.example.workoutapp.databinding.DialogCustomBackConfirmationBinding
 import com.example.workoutapp.data.exercise.ExerciseModel
+import com.example.workoutapp.ui.BaseActivity
 import java.util.Locale
 
 const val MAX_REST_PROGRESS = 1L
 const val MAX_EXERCISE_PROGRESS = 3L
-class ExerciseActivity: AppCompatActivity(), TextToSpeech.OnInitListener {
-    private var binding: ActivityExerciseBinding? = null
+class ExerciseActivity: BaseActivity(), TextToSpeech.OnInitListener {
+    private lateinit var binding: ActivityExerciseBinding
     private var restTimer: CountDownTimer? = null
     private var restProgress = 0
     private var exerciseTimer: CountDownTimer? = null
@@ -30,33 +30,53 @@ class ExerciseActivity: AppCompatActivity(), TextToSpeech.OnInitListener {
     private var mediaPlayer: MediaPlayer? = null
     private var exerciseAdapter: ExerciseStatusAdapter? = null
 
-
     private var exerciseList: ArrayList<ExerciseModel>? = null // We will initialize the list later.
     private var currentExercisePosition = -1 // Current Position of Exercise.
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityExerciseBinding.inflate(layoutInflater)
-        setContentView(binding?.root)
-
-        setSupportActionBar(binding?.toolbarExercise)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        binding?.toolbarExercise?.setNavigationOnClickListener {
-            customDialogForBackButton()
-        }
+        initSupportActionBar()
+        initMediaPlayer()
 
         exerciseList = Constants.defaultExerciseList()
-
         tts = TextToSpeech(this, this)
 
+        initExerciseStatusRecyclerView()
+        changeViewTo(ExerciseViewType.REST)
+    }
+
+    override fun initViewBinding() {
+        binding = ActivityExerciseBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+    }
+
+    // TextToSpeech onInit
+    override fun onInit(status: Int) {
+        if (status == TextToSpeech.SUCCESS) {
+            tts?.language = Locale.US
+        }
+    }
+
+    private fun initSupportActionBar() {
+        setSupportActionBar(binding.toolbarExercise)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        binding.toolbarExercise.setNavigationOnClickListener {
+            customDialogForBackButton()
+        }
+    }
+
+    private fun initMediaPlayer() {
         val soundURI =
             Uri.parse("android.resource://com.example.workoutapp/" + R.raw.press_start)
         mediaPlayer = MediaPlayer.create(applicationContext, soundURI)
         mediaPlayer?.isLooping = false
+    }
 
-        setRecyclerView()
-        setRestView()
 
+    private fun initExerciseStatusRecyclerView() {
+        binding.rvExerciseStatus.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        exerciseAdapter = ExerciseStatusAdapter(exerciseList!!)
+        binding.rvExerciseStatus.adapter = exerciseAdapter
     }
 
     private fun customDialogForBackButton() {
@@ -75,97 +95,111 @@ class ExerciseActivity: AppCompatActivity(), TextToSpeech.OnInitListener {
         customDialog.show()
     }
 
-    private fun setRecyclerView() {
-        binding?.rvExerciseStatus?.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-        exerciseAdapter = ExerciseStatusAdapter(exerciseList!!)
-
-        // Adapter class is attached to recycler view
-        binding?.rvExerciseStatus?.adapter = exerciseAdapter
+    enum class ExerciseViewType {
+        REST,
+        EXERCISE
     }
-
-    private fun setRestView() {
-        setRestViewVisibility(View.VISIBLE)
-        setExerciseVIewVisibility(View.INVISIBLE)
-        mediaPlayer?.start()
-        binding?.tvUpcomingExerciseName?.text = exerciseList!![currentExercisePosition + 1].name
-        setRestProgressBar()
-    }
-
-    private fun setExerciseView() {
-        setRestViewVisibility(View.INVISIBLE)
-        setExerciseVIewVisibility(View.VISIBLE)
-
-        val currentExercise = exerciseList!![currentExercisePosition]
-        binding?.ivImage?.setImageResource(currentExercise.image)
-        binding?.tvExerciseName?.text = currentExercise.name
-        tts?.speak(currentExercise.name, TextToSpeech.QUEUE_FLUSH, null, "")
-        setExerciseProgressBar()
+    private fun changeViewTo(viewType: ExerciseViewType) {
+        when (viewType) {
+            ExerciseViewType.REST -> {
+                setRestView()
+                setRestViewVisibility(View.VISIBLE)
+                setExerciseVIewVisibility(View.INVISIBLE)
+            }
+            ExerciseViewType.EXERCISE -> {
+                setExerciseView()
+                setRestViewVisibility(View.INVISIBLE)
+                setExerciseVIewVisibility(View.VISIBLE)
+            }
+        }
     }
 
     private fun setRestViewVisibility(visibility: Int) {
-        binding?.flRestView?.visibility = visibility
-        binding?.tvTitle?.visibility = visibility
-        binding?.tvUpcomingExerciseName?.visibility = visibility
-        binding?.upcomingLabel?.visibility = visibility
+        binding.flRestView.visibility = visibility
+        binding.tvTitle.visibility = visibility
+        binding.tvUpcomingExerciseName.visibility = visibility
+        binding.upcomingLabel.visibility = visibility
     }
     private fun setExerciseVIewVisibility(visibility: Int) {
-        binding?.tvExerciseName?.visibility = visibility
-        binding?.flExerciseView?.visibility = visibility
-        binding?.ivImage?.visibility = visibility
+        binding.tvExerciseName.visibility = visibility
+        binding.flExerciseView.visibility = visibility
+        binding.ivImage.visibility = visibility
     }
-    private fun setRestProgressBar() {
+
+    private fun setRestView() {
+        mediaPlayer?.start()
+        binding.tvUpcomingExerciseName.text = exerciseList!![currentExercisePosition + 1].name
+        startRestProgressBar()
+    }
+
+    private fun startRestProgressBar() {
         if (restTimer != null) {
             restTimer!!.cancel()
             restProgress = 0
         }
 
-        binding?.progressBar?.progress = restProgress
+        binding.progressBar.progress = restProgress
         restTimer = object: CountDownTimer(MAX_REST_PROGRESS * 1000, 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 restProgress++
-                binding?.progressBar?.progress = (MAX_REST_PROGRESS - restProgress).toInt()
-                binding?.tvTimer?.text = (MAX_REST_PROGRESS - restProgress).toString()
+                binding.progressBar.progress = (MAX_REST_PROGRESS - restProgress).toInt()
+                binding.tvTimer.text = (MAX_REST_PROGRESS - restProgress).toString()
             }
 
             override fun onFinish() {
-                currentExercisePosition++
-                exerciseList!![currentExercisePosition].isSelected = true
-                exerciseAdapter?.notifyItemChanged(currentExercisePosition)
-                setExerciseView()
+                handleRestTimeFinish()
             }
 
         }.start()
-
     }
 
-    private fun setExerciseProgressBar() {
+    private fun handleRestTimeFinish() {
+        currentExercisePosition++
+        exerciseList!![currentExercisePosition].isSelected = true
+        exerciseAdapter?.notifyItemChanged(currentExercisePosition)
+        setExerciseView()
+    }
+
+    private fun setExerciseView() {
+        val currentExercise = exerciseList!![currentExercisePosition]
+        binding.ivImage.setImageResource(currentExercise.image)
+        binding.tvExerciseName.text = currentExercise.name
+        tts?.speak(currentExercise.name, TextToSpeech.QUEUE_FLUSH, null, "")
+        startExerciseProgressBar()
+    }
+
+    private fun startExerciseProgressBar() {
         if (exerciseTimer != null) {
             exerciseTimer!!.cancel()
             exerciseProgress = 0
         }
 
-        binding?.progressBarExercise?.progress = exerciseProgress
+        binding.progressBarExercise.progress = exerciseProgress
 
         exerciseTimer = object : CountDownTimer(MAX_EXERCISE_PROGRESS * 1000, 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 exerciseProgress++
-                binding?.progressBarExercise?.progress = (MAX_EXERCISE_PROGRESS - exerciseProgress).toInt()
-                binding?.tvTimerExercise?.text = (MAX_EXERCISE_PROGRESS - exerciseProgress).toString()
+                binding.progressBarExercise.progress = (MAX_EXERCISE_PROGRESS - exerciseProgress).toInt()
+                binding.tvTimerExercise.text = (MAX_EXERCISE_PROGRESS - exerciseProgress).toString()
             }
 
             override fun onFinish() {
-                if (currentExercisePosition < exerciseList!!.size - 1) {
-                    exerciseList!![currentExercisePosition].isSelected = false
-                    exerciseList!![currentExercisePosition].isCompleted = true
-                    exerciseAdapter?.notifyItemChanged(currentExercisePosition)
-                    setRestView()
-                } else {
-                    finish()
-                    val intent = Intent(this@ExerciseActivity, FinishActivity::class.java)
-                    startActivity(intent)
-                }
+                handleExerciseTimeFinish()
             }
         }.start()
+    }
+
+    private fun handleExerciseTimeFinish() {
+        if (currentExercisePosition < exerciseList!!.size - 1) {
+            exerciseList!![currentExercisePosition].isSelected = false
+            exerciseList!![currentExercisePosition].isCompleted = true
+            exerciseAdapter?.notifyItemChanged(currentExercisePosition)
+            setRestView()
+        } else {
+            finish()
+            val intent = Intent(this@ExerciseActivity, FinishActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     override fun onDestroy() {
@@ -176,14 +210,7 @@ class ExerciseActivity: AppCompatActivity(), TextToSpeech.OnInitListener {
         tts?.stop()
         tts?.shutdown()
         mediaPlayer?.stop()
-        binding = null
         super.onDestroy()
     }
 
-    override fun onInit(status: Int) {
-        if (status == TextToSpeech.SUCCESS) {
-            tts?.language = Locale.US
-
-        }
-    }
 }
