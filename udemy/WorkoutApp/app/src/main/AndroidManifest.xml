@@ -48,6 +48,13 @@
             android:theme="@style/Theme.MaterialComponents.Light.NoActionBar"
             android:parentActivityName=".MainActivity"
             />
+        <activity
+            android:name=".HistoryActivity"
+            android:exported="true"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.MaterialComponents.Light.NoActionBar"
+            android:parentActivityName=".MainActivity"
+            />
     </application>
 
 </manifest>
