@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Happy Places</string>
+    <string name="add_happy_place_button">ADD HAPPY PLACE BUTTON</string>
 </resources>
