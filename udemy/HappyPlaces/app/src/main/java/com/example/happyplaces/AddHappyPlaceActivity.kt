@@ -1,9 +1,11 @@
 package com.example.happyplaces
 
+import android.Manifest
 import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.MediaStore
@@ -50,9 +52,8 @@ class AddHappyPlaceActivity : AppCompatActivity() {
                     0 -> {
                         requestOpenGallery()
                     }
-
                     1 -> {
-
+                        requestCamera()
                     }
                 }
             }.create()
@@ -67,6 +68,14 @@ class AddHappyPlaceActivity : AppCompatActivity() {
             requestPermissionsLauncher.launch(arrayOf(READ_IMAGE_PERMISSION))
         } else {
             openGallery()
+        }
+    }
+
+    private fun requestCamera() {
+        if (checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_DENIED) {
+            requestPermissionsLauncher.launch(arrayOf(Manifest.permission.CAMERA))
+        } else {
+            openCamera()
         }
     }
 
@@ -87,6 +96,9 @@ class AddHappyPlaceActivity : AppCompatActivity() {
                     READ_IMAGE_PERMISSION -> {
                         openGallery()
                     }
+                    Manifest.permission.CAMERA -> {
+                        openCamera()
+                    }
                 }
 
             }
@@ -101,6 +113,18 @@ class AddHappyPlaceActivity : AppCompatActivity() {
     private val openGalleryLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == RESULT_OK && result.data != null) {
             binding.ivPlaceImage.setImageURI(result.data?.data)
+        }
+    }
+
+    private fun openCamera() {
+        val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        openCameraLauncher.launch(intent)
+    }
+
+    private val openCameraLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == RESULT_OK && result.data != null) {
+            val thumbnail = result.data!!.extras!!.get("data") as Bitmap
+            binding.ivPlaceImage.setImageBitmap(thumbnail)
         }
     }
 
