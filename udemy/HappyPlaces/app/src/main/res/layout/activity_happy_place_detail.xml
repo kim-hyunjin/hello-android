@@ -17,7 +17,7 @@
         />
 
     <androidx.appcompat.widget.AppCompatImageView
-        android:id="@+id/tv_place_image"
+        android:id="@+id/iv_place_image"
         android:layout_width="match_parent"
         android:layout_height="250dp"
         android:scaleType="centerCrop"
@@ -34,7 +34,7 @@
         android:textSize="16sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_place_image"
+        app:layout_constraintTop_toBottomOf="@+id/iv_place_image"
         />
 
     <TextView

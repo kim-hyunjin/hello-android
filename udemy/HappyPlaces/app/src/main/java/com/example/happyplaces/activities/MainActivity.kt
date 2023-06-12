@@ -61,6 +61,7 @@ class MainActivity : AppCompatActivity() {
         run {
             val intent = Intent(this@MainActivity, HappyPlaceDetailActivity::class.java)
             Log.i("click!", "$position : ${place.title}")
+            intent.putExtra("place", place)
             startActivity(intent)
         }
     }
