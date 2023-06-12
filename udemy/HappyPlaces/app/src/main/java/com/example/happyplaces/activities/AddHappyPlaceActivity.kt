@@ -1,4 +1,4 @@
-package com.example.happyplaces
+package com.example.happyplaces.activities
 
 import android.Manifest
 import android.app.AlertDialog
@@ -17,8 +17,9 @@ import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
+import com.example.happyplaces.IMAGE_DIRECTORY
+import com.example.happyplaces.READ_IMAGE_PERMISSION
 import com.example.happyplaces.databinding.ActivityAddHappyPlaceBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
