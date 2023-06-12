@@ -3,18 +3,34 @@ package com.example.happyplaces
 import android.Manifest
 import android.app.AlertDialog
 import android.app.DatePickerDialog
+import android.content.Context
+import android.content.ContextWrapper
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.ImageDecoder
+import android.net.Uri
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.lifecycleScope
 import com.example.happyplaces.databinding.ActivityAddHappyPlaceBinding
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.io.OutputStream
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import java.util.UUID
 
 class AddHappyPlaceActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAddHappyPlaceBinding
@@ -112,7 +128,20 @@ class AddHappyPlaceActivity : AppCompatActivity() {
 
     private val openGalleryLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == RESULT_OK && result.data != null) {
-            binding.ivPlaceImage.setImageURI(result.data?.data)
+            val contentUri = result.data!!.data!!
+
+            contentUri.let {
+                val bitmap = if (Build.VERSION.SDK_INT < 28) {
+                    MediaStore.Images.Media.getBitmap(contentResolver, contentUri)
+                } else {
+                    val source = ImageDecoder.createSource(contentResolver, contentUri)
+                    ImageDecoder.decodeBitmap(source)
+                }
+                binding.ivPlaceImage.setImageBitmap(bitmap)
+                lifecycleScope.launch {
+                    saveImageToInternalStorage(bitmap)
+                }
+            }
         }
     }
 
@@ -125,7 +154,32 @@ class AddHappyPlaceActivity : AppCompatActivity() {
         if (result.resultCode == RESULT_OK && result.data != null) {
             val thumbnail = result.data!!.extras!!.get("data") as Bitmap
             binding.ivPlaceImage.setImageBitmap(thumbnail)
+            lifecycleScope.launch {
+                saveImageToInternalStorage(thumbnail)
+            }
         }
+    }
+
+    private suspend fun saveImageToInternalStorage(bitmap: Bitmap): Uri {
+        var result: Uri
+        withContext(Dispatchers.IO) {
+            val wrapper = ContextWrapper(applicationContext)
+            var file = wrapper.getDir(IMAGE_DIRECTORY, Context.MODE_PRIVATE)
+            file = File(file, "${UUID.randomUUID()}.jpg")
+
+            try {
+                val stream: OutputStream = FileOutputStream(file)
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
+                stream.flush()
+                stream.close()
+            } catch (e: IOException) {
+                Log.e("saveImageToInternalStorage: ERROR", e.message.toString())
+            }
+
+            Log.i("saveImageToInternalStorage: SUCCESS", file.absolutePath)
+            result =  Uri.parse(file.absolutePath)
+        }
+        return result
     }
 
     private fun updateDateInView() {
