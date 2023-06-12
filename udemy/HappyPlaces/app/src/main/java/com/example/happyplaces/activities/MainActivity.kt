@@ -3,6 +3,7 @@ package com.example.happyplaces.activities
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -53,6 +54,15 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupHappyPlaceRecyclerView(places: List<PlaceEntity>) {
         binding.rvHappyPlaceList.layoutManager = LinearLayoutManager(this)
-        binding.rvHappyPlaceList.adapter = HappyPlaceAdapter(places)
+        binding.rvHappyPlaceList.adapter = HappyPlaceAdapter(places, handleClickPlace)
     }
+
+    private val handleClickPlace: (Int, PlaceEntity) -> Unit = { position, place ->
+        run {
+            val intent = Intent(this@MainActivity, HappyPlaceDetailActivity::class.java)
+            Log.i("click!", "$position : ${place.title}")
+            startActivity(intent)
+        }
+    }
+
 }

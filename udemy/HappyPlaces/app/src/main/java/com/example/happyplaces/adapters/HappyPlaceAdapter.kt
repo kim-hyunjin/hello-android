@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.happyplaces.databinding.ItemHappyPlaceBinding
 import com.example.happyplaces.models.PlaceEntity
 
-class HappyPlaceAdapter(private val places: List<PlaceEntity>):RecyclerView.Adapter<HappyPlaceAdapter.ViewHolder>() {
+class HappyPlaceAdapter(private val places: List<PlaceEntity>, private val onClickPlace: (position: Int, place: PlaceEntity) -> Unit):RecyclerView.Adapter<HappyPlaceAdapter.ViewHolder>() {
 
     class ViewHolder(binding: ItemHappyPlaceBinding): RecyclerView.ViewHolder(binding.root) {
         val image = binding.ivPlaceImage
@@ -28,5 +28,8 @@ class HappyPlaceAdapter(private val places: List<PlaceEntity>):RecyclerView.Adap
         holder.image.setImageURI(Uri.parse(place.image))
         holder.title.text = place.title
         holder.description.text = place.description
+        holder.itemView.setOnClickListener {
+            onClickPlace(position, place)
+        }
     }
 }
