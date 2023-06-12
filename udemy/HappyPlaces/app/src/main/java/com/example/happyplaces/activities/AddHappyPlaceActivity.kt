@@ -110,8 +110,10 @@ class AddHappyPlaceActivity : AppCompatActivity() {
                         longitude = 0.0
                     )
                     val historyDao = (application as HappyPlaceApp).db.placeDao()
-                    lifecycleScope.launch(Dispatchers.IO) {
-                        historyDao.insert(entity)
+                    lifecycleScope.launch {
+                        withContext(Dispatchers.IO) {
+                            historyDao.insert(entity)
+                        }
                         finish()
                     }
                 }
@@ -195,7 +197,7 @@ class AddHappyPlaceActivity : AppCompatActivity() {
             val thumbnail = result.data!!.extras!!.get("data") as Bitmap
             binding.ivPlaceImage.setImageBitmap(thumbnail)
             lifecycleScope.launch(Dispatchers.IO) {
-                saveImageToInternalStorage(thumbnail)
+                placeImage = saveImageToInternalStorage(thumbnail)
             }
         }
     }
