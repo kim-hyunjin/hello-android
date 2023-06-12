@@ -18,9 +18,11 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.lifecycleScope
+import com.example.happyplaces.HappyPlaceApp
 import com.example.happyplaces.IMAGE_DIRECTORY
 import com.example.happyplaces.READ_IMAGE_PERMISSION
 import com.example.happyplaces.databinding.ActivityAddHappyPlaceBinding
+import com.example.happyplaces.models.PlaceEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -38,6 +40,7 @@ class AddHappyPlaceActivity : AppCompatActivity() {
     private var calendar = Calendar.getInstance()
     private lateinit var dateSetListener: DatePickerDialog.OnDateSetListener
     private lateinit var imageSourceChooseDialog: AlertDialog
+    private var placeImage: Uri? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityAddHappyPlaceBinding.inflate(layoutInflater)
@@ -77,6 +80,42 @@ class AddHappyPlaceActivity : AppCompatActivity() {
 
         binding.tvAddImage.setOnClickListener {
             imageSourceChooseDialog.show()
+        }
+
+        binding.btnSave.setOnClickListener {
+            when {
+                binding.etTitle.text.isNullOrEmpty() -> {
+                    toast("제목을 입력해주세요.")
+                }
+                binding.etDescription.text.isNullOrEmpty() -> {
+                    toast("설명을 입력해주세요.")
+                }
+                binding.etDate.text.isNullOrEmpty() -> {
+                    toast("날짜를 입력해주세요.")
+                }
+                binding.etLocation.text.isNullOrEmpty() -> {
+                    toast("위치를 입력해주세요.")
+                }
+                placeImage == null -> {
+                    toast("사진을 추가해주세요.")
+                } else -> {
+                    val entity = PlaceEntity(
+                        id = 0,
+                        title = binding.etTitle.text.toString(),
+                        description = binding.etDescription.text.toString(),
+                        image = placeImage.toString(),
+                        date = binding.etDate.text.toString(),
+                        location = binding.etLocation.text.toString(),
+                        latitude = 0.0,
+                        longitude = 0.0
+                    )
+                    val historyDao = (application as HappyPlaceApp).db.placeDao()
+                    lifecycleScope.launch(Dispatchers.IO) {
+                        historyDao.insert(entity)
+                        finish()
+                    }
+                }
+            }
         }
     }
 
@@ -139,8 +178,8 @@ class AddHappyPlaceActivity : AppCompatActivity() {
                     ImageDecoder.decodeBitmap(source)
                 }
                 binding.ivPlaceImage.setImageBitmap(bitmap)
-                lifecycleScope.launch {
-                    saveImageToInternalStorage(bitmap)
+                lifecycleScope.launch(Dispatchers.IO) {
+                    placeImage = saveImageToInternalStorage(bitmap)
                 }
             }
         }
@@ -155,7 +194,7 @@ class AddHappyPlaceActivity : AppCompatActivity() {
         if (result.resultCode == RESULT_OK && result.data != null) {
             val thumbnail = result.data!!.extras!!.get("data") as Bitmap
             binding.ivPlaceImage.setImageBitmap(thumbnail)
-            lifecycleScope.launch {
+            lifecycleScope.launch(Dispatchers.IO) {
                 saveImageToInternalStorage(thumbnail)
             }
         }
@@ -186,5 +225,9 @@ class AddHappyPlaceActivity : AppCompatActivity() {
     private fun updateDateInView() {
         val sdf = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
         binding.etDate.setText(sdf.format(calendar.time).toString())
+    }
+
+    private fun toast(text: String) {
+        Toast.makeText(this, text, Toast.LENGTH_LONG).show()
     }
 }
