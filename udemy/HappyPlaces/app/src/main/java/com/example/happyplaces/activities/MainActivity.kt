@@ -6,16 +6,22 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.happyplaces.HappyPlaceApp
 import com.example.happyplaces.adapters.HappyPlaceAdapter
 import com.example.happyplaces.databinding.ActivityMainBinding
+import com.example.happyplaces.models.PlaceDao
 import com.example.happyplaces.models.PlaceEntity
+import com.example.happyplaces.utils.SwipeToDeleteCallback
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
+    private lateinit var placeDao: PlaceDao
+    private lateinit var adapter: HappyPlaceAdapter
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -25,6 +31,8 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, AddHappyPlaceActivity::class.java)
             startActivity(intent)
         }
+
+        placeDao = (application as HappyPlaceApp).db.placeDao()
 
         initHappyPlacesView()
     }
@@ -54,7 +62,16 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupHappyPlaceRecyclerView(places: List<PlaceEntity>) {
         binding.rvHappyPlaceList.layoutManager = LinearLayoutManager(this)
-        binding.rvHappyPlaceList.adapter = HappyPlaceAdapter(places, handleClickPlace)
+        adapter = HappyPlaceAdapter(places, handleClickPlace)
+        binding.rvHappyPlaceList.adapter = adapter
+        ItemTouchHelper(object: SwipeToDeleteCallback(this) {
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                lifecycleScope.launch(Dispatchers.IO) {
+                    placeDao.delete(adapter.getData()[viewHolder.layoutPosition])
+                }
+                adapter.notifyItemRemoved(viewHolder.layoutPosition)
+            }
+        }).attachToRecyclerView(binding.rvHappyPlaceList)
     }
 
     private val handleClickPlace: (Int, PlaceEntity) -> Unit = { position, place ->

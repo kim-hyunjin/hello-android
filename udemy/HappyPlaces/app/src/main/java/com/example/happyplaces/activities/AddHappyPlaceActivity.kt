@@ -44,24 +44,14 @@ class AddHappyPlaceActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityAddHappyPlaceBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-        setSupportActionBar(binding.toolbarAddPlace)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+        initSupportActionBar()
+
         dateSetListener = DatePickerDialog.OnDateSetListener { view, year, month, dayOfMonth ->
             calendar.set(Calendar.YEAR, year)
             calendar.set(Calendar.MONTH, month)
             calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
             updateDateInView()
-        }
-
-        binding.etDate.setOnClickListener {
-            DatePickerDialog(
-                this@AddHappyPlaceActivity,
-                dateSetListener,
-                calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH),
-                calendar.get(Calendar.DAY_OF_MONTH)
-            ).show()
         }
 
         imageSourceChooseDialog =
@@ -78,49 +68,43 @@ class AddHappyPlaceActivity : AppCompatActivity() {
                 }
             }.create()
 
+        setupEventListener()
+    }
+
+    private fun initSupportActionBar() {
+        setContentView(binding.root)
+        setSupportActionBar(binding.toolbarAddPlace)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+    }
+
+    private fun setupEventListener() {
+        binding.etDate.setOnClickListener {
+            DatePickerDialog(
+                this@AddHappyPlaceActivity,
+                dateSetListener,
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
+            ).show()
+        }
+
         binding.tvAddImage.setOnClickListener {
             imageSourceChooseDialog.show()
         }
 
         binding.btnSave.setOnClickListener {
-            when {
-                binding.etTitle.text.isNullOrEmpty() -> {
-                    toast("제목을 입력해주세요.")
-                }
-                binding.etDescription.text.isNullOrEmpty() -> {
-                    toast("설명을 입력해주세요.")
-                }
-                binding.etDate.text.isNullOrEmpty() -> {
-                    toast("날짜를 입력해주세요.")
-                }
-                binding.etLocation.text.isNullOrEmpty() -> {
-                    toast("위치를 입력해주세요.")
-                }
-                placeImage == null -> {
-                    toast("사진을 추가해주세요.")
-                } else -> {
-                    val entity = PlaceEntity(
-                        id = 0,
-                        title = binding.etTitle.text.toString(),
-                        description = binding.etDescription.text.toString(),
-                        image = placeImage.toString(),
-                        date = binding.etDate.text.toString(),
-                        location = binding.etLocation.text.toString(),
-                        latitude = 0.0,
-                        longitude = 0.0
-                    )
-                    val historyDao = (application as HappyPlaceApp).db.placeDao()
-                    lifecycleScope.launch {
-                        withContext(Dispatchers.IO) {
-                            historyDao.insert(entity)
-                        }
-                        finish()
-                    }
-                }
-            }
+            handleSaveButtonClick()
         }
     }
 
+    private fun updateDateInView() {
+        val sdf = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
+        binding.etDate.setText(sdf.format(calendar.time).toString())
+    }
+
+    /**
+     * 갤러리
+     */
     private fun requestOpenGallery() {
         if (checkSelfPermission(READ_IMAGE_PERMISSION) == PackageManager.PERMISSION_DENIED) {
             requestPermissionsLauncher.launch(arrayOf(READ_IMAGE_PERMISSION))
@@ -129,11 +113,55 @@ class AddHappyPlaceActivity : AppCompatActivity() {
         }
     }
 
+    private fun openGallery() {
+        val imagePickIntent =
+            Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+        openGalleryLauncher.launch(imagePickIntent)
+    }
+
+    private val openGalleryLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == RESULT_OK && result.data != null) {
+            val contentUri = result.data!!.data!!
+
+            contentUri.let {
+                val bitmap = if (Build.VERSION.SDK_INT < 28) {
+                    MediaStore.Images.Media.getBitmap(contentResolver, contentUri)
+                } else {
+                    val source = ImageDecoder.createSource(contentResolver, contentUri)
+                    ImageDecoder.decodeBitmap(source)
+                }
+                binding.ivPlaceImage.setImageBitmap(bitmap)
+                lifecycleScope.launch(Dispatchers.IO) {
+                    placeImage = saveImageToInternalStorage(bitmap)
+                }
+            }
+        }
+    }
+
+    /**
+     * 카메라
+     */
+
     private fun requestCamera() {
         if (checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_DENIED) {
             requestPermissionsLauncher.launch(arrayOf(Manifest.permission.CAMERA))
         } else {
             openCamera()
+        }
+    }
+
+    private fun openCamera() {
+        val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        openCameraLauncher.launch(intent)
+    }
+
+    private val openCameraLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == RESULT_OK && result.data != null) {
+            val thumbnail = result.data!!.extras!!.get("data") as Bitmap
+            binding.ivPlaceImage.setImageBitmap(thumbnail)
+            lifecycleScope.launch(Dispatchers.IO) {
+                placeImage = saveImageToInternalStorage(thumbnail)
+            }
         }
     }
 
@@ -162,46 +190,6 @@ class AddHappyPlaceActivity : AppCompatActivity() {
             }
         }
 
-    private fun openGallery() {
-        val imagePickIntent =
-            Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-        openGalleryLauncher.launch(imagePickIntent)
-    }
-
-    private val openGalleryLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == RESULT_OK && result.data != null) {
-            val contentUri = result.data!!.data!!
-
-            contentUri.let {
-                val bitmap = if (Build.VERSION.SDK_INT < 28) {
-                    MediaStore.Images.Media.getBitmap(contentResolver, contentUri)
-                } else {
-                    val source = ImageDecoder.createSource(contentResolver, contentUri)
-                    ImageDecoder.decodeBitmap(source)
-                }
-                binding.ivPlaceImage.setImageBitmap(bitmap)
-                lifecycleScope.launch(Dispatchers.IO) {
-                    placeImage = saveImageToInternalStorage(bitmap)
-                }
-            }
-        }
-    }
-
-    private fun openCamera() {
-        val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        openCameraLauncher.launch(intent)
-    }
-
-    private val openCameraLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == RESULT_OK && result.data != null) {
-            val thumbnail = result.data!!.extras!!.get("data") as Bitmap
-            binding.ivPlaceImage.setImageBitmap(thumbnail)
-            lifecycleScope.launch(Dispatchers.IO) {
-                placeImage = saveImageToInternalStorage(thumbnail)
-            }
-        }
-    }
-
     private suspend fun saveImageToInternalStorage(bitmap: Bitmap): Uri {
         var result: Uri
         withContext(Dispatchers.IO) {
@@ -224,9 +212,42 @@ class AddHappyPlaceActivity : AppCompatActivity() {
         return result
     }
 
-    private fun updateDateInView() {
-        val sdf = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
-        binding.etDate.setText(sdf.format(calendar.time).toString())
+    private fun handleSaveButtonClick() {
+        when {
+            binding.etTitle.text.isNullOrEmpty() -> {
+                toast("제목을 입력해주세요.")
+            }
+            binding.etDescription.text.isNullOrEmpty() -> {
+                toast("설명을 입력해주세요.")
+            }
+            binding.etDate.text.isNullOrEmpty() -> {
+                toast("날짜를 입력해주세요.")
+            }
+            binding.etLocation.text.isNullOrEmpty() -> {
+                toast("위치를 입력해주세요.")
+            }
+            placeImage == null -> {
+                toast("사진을 추가해주세요.")
+            } else -> {
+            val entity = PlaceEntity(
+                id = 0,
+                title = binding.etTitle.text.toString(),
+                description = binding.etDescription.text.toString(),
+                image = placeImage.toString(),
+                date = binding.etDate.text.toString(),
+                location = binding.etLocation.text.toString(),
+                latitude = 0.0,
+                longitude = 0.0
+            )
+            val historyDao = (application as HappyPlaceApp).db.placeDao()
+            lifecycleScope.launch {
+                withContext(Dispatchers.IO) {
+                    historyDao.insert(entity)
+                }
+                finish()
+            }
+        }
+        }
     }
 
     private fun toast(text: String) {

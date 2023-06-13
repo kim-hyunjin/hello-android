@@ -15,6 +15,10 @@ class HappyPlaceAdapter(private val places: List<PlaceEntity>, private val onCli
         val description = binding.tvDescription
     }
 
+    fun getData(): List<PlaceEntity> {
+        return places
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(ItemHappyPlaceBinding.inflate(LayoutInflater.from(parent.context), parent, false))
     }
