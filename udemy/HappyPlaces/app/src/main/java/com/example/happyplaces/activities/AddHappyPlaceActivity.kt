@@ -1,6 +1,7 @@
 package com.example.happyplaces.activities
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.content.Context
@@ -9,11 +10,16 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
+import android.location.Address
+import android.location.Geocoder
+import android.location.LocationManager
 import android.net.Uri
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Looper
 import android.provider.MediaStore
+import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -24,6 +30,12 @@ import com.example.happyplaces.R
 import com.example.happyplaces.READ_IMAGE_PERMISSION
 import com.example.happyplaces.databinding.ActivityAddHappyPlaceBinding
 import com.example.happyplaces.models.PlaceEntity
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.widget.Autocomplete
@@ -49,6 +61,9 @@ class AddHappyPlaceActivity : AppCompatActivity() {
 
     private var mLatitude: Double = 0.0
     private var mLongitude: Double = 0.0
+
+    private lateinit var mFusedLocationProviderClient: FusedLocationProviderClient
+    private lateinit var mGeocoder: Geocoder
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityAddHappyPlaceBinding.inflate(layoutInflater)
@@ -75,6 +90,9 @@ class AddHappyPlaceActivity : AppCompatActivity() {
                     }
                 }
             }.create()
+
+        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
+        mGeocoder = Geocoder(this, Locale.getDefault())
 
         setupEventListener()
         setupGoogleMap()
@@ -112,6 +130,19 @@ class AddHappyPlaceActivity : AppCompatActivity() {
                 googleMapLauncher.launch(intent)
             } catch (e: Exception) {
 
+            }
+        }
+
+        binding.btnCurrentLocation.setOnClickListener {
+            val locationManager: LocationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+
+            val isLocationEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+            if (!isLocationEnabled) {
+                toast("Your location setting is turned off. Please turn it on...")
+                val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                startActivity(intent)
+            } else {
+                requestPermissionsLauncher.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION))
             }
         }
     }
@@ -210,6 +241,9 @@ class AddHappyPlaceActivity : AppCompatActivity() {
                     Manifest.permission.CAMERA -> {
                         openCamera()
                     }
+                    Manifest.permission.ACCESS_FINE_LOCATION -> {
+                        requestNewLocationData()
+                    }
                 }
 
             }
@@ -249,6 +283,92 @@ class AddHappyPlaceActivity : AppCompatActivity() {
                 mLongitude = place.latLng!!.longitude
             }
 
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun requestNewLocationData() {
+        val mLocationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 1000).apply {
+            setMaxUpdates(1)
+        }.build()
+//        if (ActivityCompat.checkSelfPermission(
+//                this,
+//                Manifest.permission.ACCESS_FINE_LOCATION
+//            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+//                this,
+//                Manifest.permission.ACCESS_COARSE_LOCATION
+//            ) != PackageManager.PERMISSION_GRANTED
+//        ) {
+//            // TODO: Consider calling
+//            //    ActivityCompat#requestPermissions
+//            // here to request the missing permissions, and then overriding
+//            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+//            //                                          int[] grantResults)
+//            // to handle the case where the user grants the permission. See the documentation
+//            // for ActivityCompat#requestPermissions for more details.
+//            return
+//        }
+        mFusedLocationProviderClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper())
+    }
+
+    private val mLocationCallback = object: LocationCallback() {
+        override fun onLocationResult(result: LocationResult) {
+            super.onLocationResult(result)
+            val mLastLocation = result.lastLocation!!
+            mLatitude = mLastLocation.latitude
+            mLongitude = mLastLocation.longitude
+            Log.i("lastLocation", "$mLatitude, $mLongitude")
+
+            try {
+                if (Build.VERSION.SDK_INT > 33) {
+                    mGeocoder.getFromLocation(
+                        mLatitude,
+                        mLongitude,
+                        1,
+                        object : Geocoder.GeocodeListener {
+                            override fun onGeocode(addresses: MutableList<Address>) {
+                                lifecycleScope.launch(Dispatchers.Main) {
+                                    setLocationFromAddress(addresses)
+                                }
+                            }
+
+                            override fun onError(errorMessage: String?) {
+                                super.onError(errorMessage)
+                            }
+                        })
+                } else {
+//                    GetLocationFromLatLng(latitude = mLatitude, longitude = mLongitude, context = this@AddHappyPlaceActivity, listener = object: GetLocationFromLatLng.AddressListener {
+//                        override fun onAddressFound(address: String?) {
+//                            binding.etLocation.setText(address)
+//                        }
+//                        override fun onError() {
+//                            toast("Fail to get current location")
+//                        }
+//
+//                    }).getLocation()
+                    lifecycleScope.launch(Dispatchers.IO) {
+                        val addrList = mGeocoder.getFromLocation(mLatitude, mLongitude, 1)
+                        lifecycleScope.launch(Dispatchers.Main) {
+                            setLocationFromAddress(addrList)
+                        }
+                    }
+                }
+
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    private fun setLocationFromAddress(addresses: MutableList<Address>?) {
+        if (!addresses.isNullOrEmpty()) {
+            val address = addresses[0]
+            val sb = StringBuilder()
+            for (i in 0..address.maxAddressLineIndex) {
+                sb.append(address.getAddressLine(i)).append(" ")
+            }
+            sb.deleteCharAt(sb.length - 1)
+            binding.etLocation.setText(sb.toString())
         }
     }
 
