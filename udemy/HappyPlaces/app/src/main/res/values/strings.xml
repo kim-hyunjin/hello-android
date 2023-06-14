@@ -10,4 +10,6 @@
     <string name="btn_text_save">SAVE</string>
     <string name="no_happy_places_found_yet">No Happy Places Found Yet</string>
     <string name="happy_place_thumbnail">Happy Place Thumbnail</string>
+
+    <string name="google_maps_key">AIzaSyAGe-d2GMJiMw1IiXlXXqD0O7vKLz96Jx8</string>
 </resources>

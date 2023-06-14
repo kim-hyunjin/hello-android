@@ -20,9 +20,14 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.lifecycleScope
 import com.example.happyplaces.HappyPlaceApp
 import com.example.happyplaces.IMAGE_DIRECTORY
+import com.example.happyplaces.R
 import com.example.happyplaces.READ_IMAGE_PERMISSION
 import com.example.happyplaces.databinding.ActivityAddHappyPlaceBinding
 import com.example.happyplaces.models.PlaceEntity
+import com.google.android.libraries.places.api.Places
+import com.google.android.libraries.places.api.model.Place
+import com.google.android.libraries.places.widget.Autocomplete
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -41,6 +46,9 @@ class AddHappyPlaceActivity : AppCompatActivity() {
     private lateinit var dateSetListener: DatePickerDialog.OnDateSetListener
     private lateinit var imageSourceChooseDialog: AlertDialog
     private var placeImage: Uri? = null
+
+    private var mLatitude: Double = 0.0
+    private var mLongitude: Double = 0.0
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityAddHappyPlaceBinding.inflate(layoutInflater)
@@ -69,6 +77,7 @@ class AddHappyPlaceActivity : AppCompatActivity() {
             }.create()
 
         setupEventListener()
+        setupGoogleMap()
     }
 
     private fun initSupportActionBar() {
@@ -94,6 +103,22 @@ class AddHappyPlaceActivity : AppCompatActivity() {
 
         binding.btnSave.setOnClickListener {
             handleSaveButtonClick()
+        }
+
+        binding.etLocation.setOnClickListener {
+            try {
+                val fields = listOf(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG, Place.Field.ADDRESS)
+                val intent = Autocomplete.IntentBuilder(AutocompleteActivityMode.FULLSCREEN, fields).build(this)
+                googleMapLauncher.launch(intent)
+            } catch (e: Exception) {
+
+            }
+        }
+    }
+
+    private fun setupGoogleMap() {
+        if (!Places.isInitialized()) {
+            Places.initialize(this, resources.getString(R.string.google_maps_key))
         }
     }
 
@@ -212,6 +237,21 @@ class AddHappyPlaceActivity : AppCompatActivity() {
         return result
     }
 
+    /**
+     * location
+     */
+    private val googleMapLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == RESULT_OK && result.data != null) {
+            result.data?.let {
+                val place = Autocomplete.getPlaceFromIntent(it)
+                binding.etLocation.setText(place.address)
+                mLatitude = place.latLng!!.latitude
+                mLongitude = place.latLng!!.longitude
+            }
+
+        }
+    }
+
     private fun handleSaveButtonClick() {
         when {
             binding.etTitle.text.isNullOrEmpty() -> {
@@ -236,8 +276,8 @@ class AddHappyPlaceActivity : AppCompatActivity() {
                 image = placeImage.toString(),
                 date = binding.etDate.text.toString(),
                 location = binding.etLocation.text.toString(),
-                latitude = 0.0,
-                longitude = 0.0
+                latitude = mLatitude,
+                longitude = mLongitude
             )
             val historyDao = (application as HappyPlaceApp).db.placeDao()
             lifecycleScope.launch {
