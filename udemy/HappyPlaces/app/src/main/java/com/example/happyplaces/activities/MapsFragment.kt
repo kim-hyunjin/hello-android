@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.example.happyplaces.R
+import com.example.happyplaces.models.PlaceEntity
 
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -15,7 +16,7 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 
-class MapsFragment : Fragment() {
+class MapsFragment(val place: PlaceEntity) : Fragment() {
 
     private val callback = OnMapReadyCallback { googleMap ->
         /**
@@ -27,9 +28,9 @@ class MapsFragment : Fragment() {
          * install it inside the SupportMapFragment. This method will only be triggered once the
          * user has installed Google Play services and returned to the app.
          */
-        val sydney = LatLng(-34.0, 151.0)
-        googleMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
-        googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+        val location = LatLng(place.latitude, place.longitude)
+        googleMap.addMarker(MarkerOptions().position(location).title("Marker in Sydney"))
+        googleMap.moveCamera(CameraUpdateFactory.newLatLng(location))
     }
 
     override fun onCreateView(

@@ -3,6 +3,7 @@ package com.example.happyplaces.activities
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import com.example.happyplaces.R
 import com.example.happyplaces.databinding.ActivityHappyPlaceDetailBinding
 import com.example.happyplaces.models.PlaceEntity
 
@@ -24,6 +25,10 @@ class HappyPlaceDetailActivity : AppCompatActivity() {
             binding.ivPlaceImage.setImageURI(Uri.parse(place.image))
             binding.tvDescription.text = place.description
             binding.tvLocation.text = place.location
+            binding.btnViewOnMap.setOnClickListener {
+                supportFragmentManager.beginTransaction().replace(R.id.fragment_container_view, MapsFragment(place)).commit()
+            }
         }
+
     }
 }
