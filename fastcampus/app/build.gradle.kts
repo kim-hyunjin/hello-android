@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.github.kimhyunjin.emergencymedicalinfoapp"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.github.kimhyunjin.emergencymedicalinfoapp"
@@ -35,9 +35,6 @@ android {
     }
     kotlinOptions {
         jvmTarget = "1.8"
-    }
-    buildFeatures {
-        compose = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.4.3"
