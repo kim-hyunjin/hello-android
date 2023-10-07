@@ -3,6 +3,7 @@ package com.github.kimhyunjin.emergencymedicalinfoapp
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import com.github.kimhyunjin.emergencymedicalinfoapp.databinding.ActivityMainBinding
@@ -17,6 +18,10 @@ class MainActivity : AppCompatActivity() {
         binding.goEditActivityButton.setOnClickListener {
             val intent = Intent(this, EditActivity::class.java)
             startActivity(intent)
+        }
+
+        binding.deleteButton.setOnClickListener {
+            deleteData()
         }
     }
 
@@ -38,5 +43,14 @@ class MainActivity : AppCompatActivity() {
                 binding.warningValueTextView.text = getString(NAME, "미정")
             }
         }
+    }
+
+    private fun deleteData() {
+        with(getSharedPreferences(USER_INFORMATION, MODE_PRIVATE).edit()) {
+            clear()
+            apply()
+            getDataAndUIUpdate()
+        }
+        Toast.makeText(this, "초기화를 완료했습니다.", Toast.LENGTH_SHORT).show()
     }
 }

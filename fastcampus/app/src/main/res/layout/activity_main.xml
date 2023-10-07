@@ -16,6 +16,16 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_margin="36dp"
          />
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/deleteButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:src="@drawable/baseline_delete_24"
+        app:layout_constraintBottom_toTopOf="@id/goEditActivityButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_margin="36dp"
+        />
 
     <TextView
         android:id="@+id/nameTextView"
