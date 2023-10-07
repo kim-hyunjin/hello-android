@@ -12,7 +12,7 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.goInputActivityButton.setOnClickListener {
+        binding.goEditActivityButton.setOnClickListener {
             val intent = Intent(this, EditActivity::class.java)
             intent.putExtra("msg", "응급의료정보")
             startActivity(intent)
