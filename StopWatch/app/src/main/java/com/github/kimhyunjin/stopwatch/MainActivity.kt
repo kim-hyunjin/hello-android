@@ -6,11 +6,17 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
 import com.github.kimhyunjin.stopwatch.databinding.ActivityMainBinding
 import com.github.kimhyunjin.stopwatch.databinding.DialogCountdownSettingBinding
+import java.util.Timer
+import kotlin.concurrent.timer
+import kotlin.math.ceil
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private var countdownSecond = 0
+    private var currentCountdownDeciSecond = 0
+    private var currentDeciSecond = 0
+    private var timer: Timer? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -43,11 +49,47 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun start() {
+        this.timer = timer(initialDelay = 0, period = 100) {
+            if (currentCountdownDeciSecond != 0) {
+                currentCountdownDeciSecond -= 1
+
+                runOnUiThread {
+                    binding.countdownProgressBar.max = countdownSecond.times(10)
+                    binding.countdownProgressBar.progress = currentCountdownDeciSecond
+                    binding.countdownTextView.text =
+                        String.format("%02d", ceil(currentCountdownDeciSecond.toFloat().div(10f)).toInt() )
+                }
+            } else {
+                currentDeciSecond += 1
+
+                val minutes = currentDeciSecond.div(10).div(60)
+                val seconds = currentDeciSecond.div(10).mod(60)
+                val deci = currentDeciSecond.mod(10)
+
+                runOnUiThread {
+                    binding.timeTextView.text = String.format("%02d:%02d", minutes, seconds)
+                    binding.tickTextView.text = deci.toString()
+                }
+            }
+        }
 
     }
 
     private fun stop() {
+        binding.startButton.isVisible = true
+        binding.stopButton.isVisible = true
+        binding.pauseButton.isVisible = false
+        binding.lapButton.isVisible = false
 
+        currentDeciSecond = 0
+        timer?.cancel()
+        timer = null
+
+        binding.timeTextView.text = "00:00"
+        binding.tickTextView.text = "0"
+
+        currentCountdownDeciSecond = countdownSecond.times(10)
+        binding.countdownTextView.text = String.format("%02d", countdownSecond)
     }
 
     private fun lap() {
@@ -55,11 +97,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun pause() {
-
+        timer?.cancel()
+        timer = null
     }
 
     private fun showCountdownSettingDialog() {
-        AlertDialog.Builder(this, ).apply {
+        AlertDialog.Builder(this).apply {
             val dialogBinding = DialogCountdownSettingBinding.inflate(layoutInflater)
             with(dialogBinding.countdownSecondPicker) {
                 maxValue = 20
@@ -70,14 +113,15 @@ class MainActivity : AppCompatActivity() {
             setView(dialogBinding.root)
             setPositiveButton("확인") { dialog, id ->
                 countdownSecond = dialogBinding.countdownSecondPicker.value
-                binding.countdownTextView.text = String.format("%02d",countdownSecond)
+                currentCountdownDeciSecond = countdownSecond.times(10)
+                binding.countdownTextView.text = String.format("%02d", countdownSecond)
             }
             setNegativeButton("취소", null)
         }.show()
     }
 
     private fun showAlertDialog() {
-        AlertDialog.Builder(this, ).apply {
+        AlertDialog.Builder(this).apply {
             setMessage("종료하시겠습니까?")
             setPositiveButton("네") { dialog, id ->
                 stop()
