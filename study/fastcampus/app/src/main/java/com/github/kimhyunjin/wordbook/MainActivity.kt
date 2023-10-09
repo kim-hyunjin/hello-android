@@ -3,16 +3,26 @@ package com.github.kimhyunjin.wordbook
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView.ItemDecoration
 import com.github.kimhyunjin.wordbook.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity(), WordAdapter.ItemWordClickListener {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var wordAdapter: WordAdapter
+    private val updateAddWordResult =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            Log.d("updateAddWordResult", result.data.toString())
+            val isUpdated = result.data?.getBooleanExtra("isUpdated", false) ?: false
+            if (result.resultCode == RESULT_OK && isUpdated) {
+                updateAddWord()
+            }
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -21,7 +31,7 @@ class MainActivity : AppCompatActivity(), WordAdapter.ItemWordClickListener {
         initRecyclerView()
 
         binding.addButton.setOnClickListener {
-            startActivity(Intent(this, AddActivity::class.java))
+            updateAddWordResult.launch(Intent(this, AddActivity::class.java))
         }
     }
 
@@ -31,7 +41,7 @@ class MainActivity : AppCompatActivity(), WordAdapter.ItemWordClickListener {
         binding.wordRecyclerView.apply {
             adapter = wordAdapter
             layoutManager =
-                LinearLayoutManager(applicationContext, LinearLayoutManager.VERTICAL, false)
+                LinearLayoutManager(applicationContext, LinearLayoutManager.VERTICAL, true)
             addItemDecoration(
                 DividerItemDecoration(
                     applicationContext,
@@ -45,6 +55,17 @@ class MainActivity : AppCompatActivity(), WordAdapter.ItemWordClickListener {
             wordAdapter.list.addAll(words)
             runOnUiThread {
                 wordAdapter.notifyDataSetChanged()
+            }
+        }.start()
+    }
+
+    private fun updateAddWord() {
+        Thread {
+            val word = AppDatabase.getInstance(this).wordDao().getLatestWord()
+            Log.d("updateAddWord", word.text)
+            wordAdapter.list.add(word)
+            runOnUiThread {
+                wordAdapter.notifyItemInserted(wordAdapter.list.lastIndex)
             }
         }.start()
     }
