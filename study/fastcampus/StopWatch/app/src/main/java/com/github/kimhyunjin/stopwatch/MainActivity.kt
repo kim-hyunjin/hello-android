@@ -1,7 +1,10 @@
 package com.github.kimhyunjin.stopwatch
 
+import android.media.AudioManager
+import android.media.ToneGenerator
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.Gravity
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
@@ -76,6 +79,14 @@ class MainActivity : AppCompatActivity() {
                     binding.timeTextView.text = String.format("%02d:%02d", minutes, seconds)
                     binding.tickTextView.text = deci.toString()
                 }
+            }
+
+            if (currentDeciSecond == 0 && currentCountdownDeciSecond < 31 && currentCountdownDeciSecond % 10 == 0) {
+                Log.d("tone", "Beep!")
+                val toneType =
+                    if (currentCountdownDeciSecond == 0) ToneGenerator.TONE_CDMA_HIGH_L else ToneGenerator.TONE_CDMA_ANSWER
+                ToneGenerator(AudioManager.STREAM_ALARM, ToneGenerator.MAX_VOLUME)
+                    .startTone(toneType, 100)
             }
         }
 
