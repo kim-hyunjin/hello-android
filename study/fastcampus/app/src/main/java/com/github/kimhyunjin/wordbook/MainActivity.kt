@@ -1,5 +1,6 @@
 package com.github.kimhyunjin.wordbook
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
@@ -18,6 +19,10 @@ class MainActivity : AppCompatActivity(), WordAdapter.ItemWordClickListener {
         setContentView(binding.root)
 
         initRecyclerView()
+
+        binding.addButton.setOnClickListener {
+            startActivity(Intent(this, AddActivity::class.java))
+        }
     }
 
     private fun initRecyclerView() {
