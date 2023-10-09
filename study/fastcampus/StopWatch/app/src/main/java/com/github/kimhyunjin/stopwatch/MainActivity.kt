@@ -2,8 +2,11 @@ package com.github.kimhyunjin.stopwatch
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.Gravity
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
+import androidx.core.view.setPadding
 import com.github.kimhyunjin.stopwatch.databinding.ActivityMainBinding
 import com.github.kimhyunjin.stopwatch.databinding.DialogCountdownSettingBinding
 import java.util.Timer
@@ -57,7 +60,10 @@ class MainActivity : AppCompatActivity() {
                     binding.countdownProgressBar.max = countdownSecond.times(10)
                     binding.countdownProgressBar.progress = currentCountdownDeciSecond
                     binding.countdownTextView.text =
-                        String.format("%02d", ceil(currentCountdownDeciSecond.toFloat().div(10f)).toInt() )
+                        String.format(
+                            "%02d",
+                            ceil(currentCountdownDeciSecond.toFloat().div(10f)).toInt()
+                        )
                 }
             } else {
                 currentDeciSecond += 1
@@ -90,10 +96,29 @@ class MainActivity : AppCompatActivity() {
 
         currentCountdownDeciSecond = countdownSecond.times(10)
         binding.countdownTextView.text = String.format("%02d", countdownSecond)
+        binding.lapContainerLinearLayout.removeAllViews()
     }
 
     private fun lap() {
+        val container = binding.lapContainerLinearLayout
+        TextView(this).apply {
+            textSize = 20f
+            gravity = Gravity.CENTER
+            setPadding(30)
 
+            val minutes = currentDeciSecond.div(10).div(60)
+            val seconds = currentDeciSecond.div(10).mod(60)
+            val deci = currentDeciSecond.mod(10)
+
+            text = "${container.childCount.inc()}. " + String.format(
+                "%02d:%02d %01d",
+                minutes,
+                seconds,
+                deci
+            )
+        }.let { tv ->
+            container.addView(tv, 0)
+        }
     }
 
     private fun pause() {
