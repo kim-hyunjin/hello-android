@@ -26,13 +26,8 @@ class MainActivity : AppCompatActivity(), WordAdapter.ItemWordClickListener {
     }
 
     private fun initRecyclerView() {
-        val words = mutableListOf<Word>(
-            Word("weather", "날씨", "명사"),
-            Word("weather", "날씨", "명사"),
-            Word("weather", "날씨", "명사")
-        )
 
-        wordAdapter = WordAdapter(words, this)
+        wordAdapter = WordAdapter(mutableListOf(), this)
         binding.wordRecyclerView.apply {
             adapter = wordAdapter
             layoutManager =
@@ -44,6 +39,14 @@ class MainActivity : AppCompatActivity(), WordAdapter.ItemWordClickListener {
                 )
             )
         }
+
+        Thread {
+            val words = AppDatabase.getInstance(this).wordDao().getAll() ?: emptyList()
+            wordAdapter.list.addAll(words)
+            runOnUiThread {
+                wordAdapter.notifyDataSetChanged()
+            }
+        }.start()
     }
 
     override fun onClick(word: Word) {
