@@ -8,7 +8,7 @@ import androidx.room.Update
 
 @Dao
 interface WordDao {
-    @Query("SELECT * from word ORDER BY id ASC")
+    @Query("SELECT * from word ORDER BY id DESC")
     fun getAll(): List<Word>
 
     @Query("SELECT * from word ORDER BY id DESC LIMIT 1")
