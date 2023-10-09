@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.children
+import androidx.core.widget.addTextChangedListener
 import com.github.kimhyunjin.wordbook.databinding.ActivityAddBinding
 import com.google.android.material.chip.Chip
 
@@ -21,6 +22,25 @@ class AddActivity : AppCompatActivity() {
 
         binding.addButton.setOnClickListener {
             if (originWord == null) add() else edit()
+        }
+
+        binding.textInputEditText.addTextChangedListener {
+            it?.let { editable ->
+                binding.textTextInputLayout.error = when(editable.length) {
+                    0 -> "값을 입력해주세요."
+                    1 -> "2자 이상 입력해주세요"
+                    else -> null
+                }
+            }
+        }
+        binding.meanTextInputEditText.addTextChangedListener {
+            it?.let { editable ->
+                binding.meanTextInputLayout.error = when(editable.length) {
+                    0 -> "값을 입력해주세요."
+                    1 -> "2자 이상 입력해주세요"
+                    else -> null
+                }
+            }
         }
     }
 
