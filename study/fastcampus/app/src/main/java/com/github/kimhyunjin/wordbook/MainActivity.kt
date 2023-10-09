@@ -22,6 +22,14 @@ class MainActivity : AppCompatActivity(), WordAdapter.ItemWordClickListener {
                 updateAddWord()
             }
         }
+    private val updateEditWordResult =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            Log.d("updateAddWordResult", result.data.toString())
+            val editWord = result.data?.getParcelableExtra<Word>("editWord")
+            if (result.resultCode == RESULT_OK && editWord !== null) {
+                updateEditWord(editWord)
+            }
+        }
 
     private var selectedWord: Word? = null
 
@@ -38,6 +46,10 @@ class MainActivity : AppCompatActivity(), WordAdapter.ItemWordClickListener {
 
         binding.deleteImageView.setOnClickListener {
             delete()
+        }
+
+        binding.editImageView.setOnClickListener {
+            edit()
         }
     }
 
@@ -76,6 +88,17 @@ class MainActivity : AppCompatActivity(), WordAdapter.ItemWordClickListener {
         }.start()
     }
 
+    private fun updateEditWord(word: Word) {
+        val index = wordAdapter.list.indexOfFirst { it.id == word.id }
+        wordAdapter.list[index] = word
+        runOnUiThread {
+            selectedWord = word
+            wordAdapter.notifyItemChanged(index)
+            binding.textTextView.text = word.text
+            binding.meanTextView.text = word.mean
+        }
+    }
+
     private fun delete() {
         if (selectedWord == null) {
             return
@@ -95,6 +118,13 @@ class MainActivity : AppCompatActivity(), WordAdapter.ItemWordClickListener {
                 selectedWord = null
             }
         }.start()
+    }
+
+    private fun edit() {
+        if (selectedWord == null) return
+
+        val intent = Intent(this, AddActivity::class.java).putExtra("originWord", selectedWord)
+        updateEditWordResult.launch(intent)
     }
 
     override fun onClick(word: Word) {
