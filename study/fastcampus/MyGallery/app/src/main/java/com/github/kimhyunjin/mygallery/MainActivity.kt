@@ -1,5 +1,6 @@
 package com.github.kimhyunjin.mygallery
 
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
@@ -30,8 +31,21 @@ class MainActivity : AppCompatActivity(), ImageAdapter.ItemClickListener {
         binding.btnLoadImg.setOnClickListener {
             checkPermission()
         }
+        binding.btnGoToAlbum.setOnClickListener {
+            navigateToAlbum()
+        }
 
         initRecyclerView()
+    }
+
+    private fun navigateToAlbum() {
+
+        val intent = Intent(this, AlbumActivity::class.java).apply {
+            val images = imageAdapter.currentList.filterIsInstance<ImageItems.Image>().map { it -> it.uri.toString() }.toTypedArray()
+            putExtra("images", images)
+        }
+
+        startActivity(intent)
     }
 
     private fun initRecyclerView() {
