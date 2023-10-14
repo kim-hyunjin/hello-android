@@ -10,10 +10,12 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.GridLayoutManager
 import com.github.kimhyunjin.mygallery.databinding.ActivityMainBinding
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), ImageAdapter.ItemClickListener {
     private lateinit var binding: ActivityMainBinding
+    private lateinit var imageAdapter: ImageAdapter
 
     private val imageLoadLauncher =
         registerForActivityResult(ActivityResultContracts.GetMultipleContents()) { uriList ->
@@ -24,9 +26,18 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
+        imageAdapter = ImageAdapter(this)
         binding.btnLoadImg.setOnClickListener {
             checkPermission()
+        }
+
+        initRecyclerView()
+    }
+
+    private fun initRecyclerView() {
+        binding.rvImage.apply {
+            adapter = imageAdapter
+            layoutManager = GridLayoutManager(this@MainActivity, 2)
         }
     }
 
@@ -79,7 +90,7 @@ class MainActivity : AppCompatActivity() {
 
         when (requestCode) {
             REQUEST_EXTERNAL_STORAGE -> {
-                if (grantResults.firstOrNull() == PackageManager.PERMISSION_GRANTED) {
+                if (PackageManager.PERMISSION_GRANTED == grantResults.firstOrNull()) {
                     loadImage()
                 }
             }
@@ -92,6 +103,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun updateImages(uriList: List<Uri>) {
         Log.i("uriList", uriList.toString())
+        val images = uriList.map {
+            ImageItems.Image(it)
+        }
+        val updatedImages = imageAdapter.currentList.toMutableList().apply { addAll(images) }
+        imageAdapter.submitList(updatedImages)
     }
 
     companion object {
@@ -102,5 +118,9 @@ class MainActivity : AppCompatActivity() {
                 android.Manifest.permission.READ_EXTERNAL_STORAGE
             }
         const val REQUEST_EXTERNAL_STORAGE = 100
+    }
+
+    override fun onClickLoadmore() {
+        checkPermission()
     }
 }
