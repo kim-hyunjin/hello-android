@@ -7,6 +7,8 @@ import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
@@ -27,6 +29,12 @@ class MainActivity : AppCompatActivity(), ImageAdapter.ItemClickListener {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        binding.toolbar.apply {
+            title = "사진 가져오기"
+            setSupportActionBar(this)
+        }
+
         imageAdapter = ImageAdapter(this)
         binding.btnLoadImg.setOnClickListener {
             checkPermission()
@@ -38,10 +46,29 @@ class MainActivity : AppCompatActivity(), ImageAdapter.ItemClickListener {
         initRecyclerView()
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.main_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.actionAdd -> {
+                checkPermission()
+                true
+            }
+
+            else -> {
+                super.onOptionsItemSelected(item)
+            }
+        }
+    }
+
     private fun navigateToAlbum() {
 
         val intent = Intent(this, AlbumActivity::class.java).apply {
-            val images = imageAdapter.currentList.filterIsInstance<ImageItems.Image>().map { it -> it.uri.toString() }.toTypedArray()
+            val images = imageAdapter.currentList.filterIsInstance<ImageItems.Image>()
+                .map { it -> it.uri.toString() }.toTypedArray()
             putExtra("images", images)
         }
 

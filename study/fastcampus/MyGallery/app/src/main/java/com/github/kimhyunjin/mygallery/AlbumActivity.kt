@@ -14,6 +14,11 @@ class AlbumActivity : AppCompatActivity() {
         binding = ActivityAlbumBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        binding.toolbar.apply {
+            title = "나만의 앨범"
+            setSupportActionBar(this)
+        }
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         val images = (intent.getStringArrayExtra("images") ?: emptyArray()).map {
             AlbumItem(Uri.parse(it))
