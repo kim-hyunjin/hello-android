@@ -4,6 +4,7 @@ import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.github.kimhyunjin.mygallery.databinding.ActivityAlbumBinding
+import com.google.android.material.tabs.TabLayoutMediator
 
 class AlbumActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAlbumBinding
@@ -23,5 +24,9 @@ class AlbumActivity : AppCompatActivity() {
         binding.viewpager.apply {
             adapter = albumAdapter
         }
+
+        TabLayoutMediator(binding.tabLayout, binding.viewpager) { tab, position ->
+            binding.viewpager.currentItem = position
+        }.attach()
     }
 }
