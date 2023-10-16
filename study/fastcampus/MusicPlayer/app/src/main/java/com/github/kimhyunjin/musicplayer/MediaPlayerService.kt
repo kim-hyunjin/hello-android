@@ -45,10 +45,6 @@ class MediaPlayerService : Service() {
             PendingIntent.FLAG_IMMUTABLE
         )
 
-        val playIcon = Icon.createWithResource(this, R.drawable.baseline_play_arrow_24)
-        val pauseIcon = Icon.createWithResource(this, R.drawable.baseline_pause_24)
-        val stopIcon = Icon.createWithResource(this, R.drawable.baseline_stop_24)
-
         val pausePendingIntent = PendingIntent.getService(
             this,
             0,
@@ -77,6 +73,10 @@ class MediaPlayerService : Service() {
         )
 
         val notification = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val playIcon = Icon.createWithResource(this, R.drawable.baseline_play_arrow_24)
+            val pauseIcon = Icon.createWithResource(this, R.drawable.baseline_pause_24)
+            val stopIcon = Icon.createWithResource(this, R.drawable.baseline_stop_24)
+
             Notification.Builder(this, MEDIA_CHANNEL_ID).apply {
                 setSmallIcon(R.drawable.baseline_stars_24)
                 setContentTitle("음악 재생")
@@ -98,6 +98,28 @@ class MediaPlayerService : Service() {
                 setContentTitle("음악 재생")
                 setContentText("음원 재생 중...")
                 setContentIntent(mainPendingIntent)
+                setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                addAction(
+                    NotificationCompat.Action.Builder(
+                        R.drawable.baseline_pause_24,
+                        "Pause",
+                        pausePendingIntent
+                    ).build()
+                )
+                addAction(
+                    NotificationCompat.Action.Builder(
+                        R.drawable.baseline_play_arrow_24,
+                        "Play",
+                        playPendingIntent
+                    ).build()
+                )
+                addAction(
+                    NotificationCompat.Action.Builder(
+                        R.drawable.baseline_stop_24,
+                        "Stop",
+                        stopPendingIntent
+                    ).build()
+                )
             }.build()
         }
 
