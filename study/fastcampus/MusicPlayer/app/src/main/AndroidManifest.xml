@@ -3,6 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <!-- Android 13(API 33) 이후 부터는 알림 권한이 있어야 포어그라운드 서비스 알림 사용 가능 -> 권한 받기 과정 필요 -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 
     <application
         android:allowBackup="true"
