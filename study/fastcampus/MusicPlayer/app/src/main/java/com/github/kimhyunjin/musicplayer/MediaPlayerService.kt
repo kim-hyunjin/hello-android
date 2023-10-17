@@ -6,6 +6,7 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
+import android.content.IntentFilter
 import android.graphics.drawable.Icon
 import android.media.MediaPlayer
 import android.os.Build
@@ -15,6 +16,7 @@ import androidx.core.app.NotificationCompat
 
 class MediaPlayerService : Service() {
     private var mediaPlayer: MediaPlayer? = null
+    private val receiver = LowBatteryReceiver()
 
     override fun onBind(intent: Intent): IBinder? {
         return null
@@ -22,9 +24,17 @@ class MediaPlayerService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        initReceiver()
         createNotificationChannel()
         val notification = createNotification()
         startForeground(1, notification)
+    }
+
+    private fun initReceiver() {
+        val filter = IntentFilter().apply {
+            addAction(Intent.ACTION_BATTERY_LOW)
+        }
+        registerReceiver(receiver, filter)
     }
 
     private fun createNotificationChannel() {
@@ -157,6 +167,7 @@ class MediaPlayerService : Service() {
 
     override fun onDestroy() {
         clearMediaPlayer()
+        unregisterReceiver(receiver)
         super.onDestroy()
     }
 

@@ -2,9 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <!-- Android 13(API 33) 이후 부터는 알림 권한이 있어야 포어그라운드 서비스 알림 사용 가능 -> 권한 받기 과정 필요 -->
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" /> <!-- Android 13(API 33) 이후 부터는 알림 권한이 있어야 포어그라운드 서비스 알림 사용 가능 -> 권한 받기 과정 필요 -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:allowBackup="true"
@@ -16,10 +15,15 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MusicPlayer"
         tools:targetApi="31">
+        <receiver
+            android:name=".LowBatteryReceiver"
+            android:enabled="true"
+            android:exported="true"></receiver>
+
         <service
             android:name=".MediaPlayerService"
             android:enabled="true"
-            android:exported="false"/>
+            android:exported="false" />
 
         <activity
             android:name=".MainActivity"
