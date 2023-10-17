@@ -22,9 +22,12 @@ class MediaPlayerService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        createNotificationChannel()
+        val notification = createNotification()
+        startForeground(1, notification)
+    }
 
-        Log.i("MediaPlayerService", "onCreate!!")
-
+    private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(
@@ -35,7 +38,9 @@ class MediaPlayerService : Service() {
                 )
             )
         }
+    }
 
+    private fun createNotification(): Notification {
         val mainPendingIntent = PendingIntent.getActivity(
             this,
             0,
@@ -123,9 +128,7 @@ class MediaPlayerService : Service() {
             }.build()
         }
 
-        Log.i("MediaPlayerService", "notification $notification")
-
-        startForeground(1, notification)
+        return notification
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -144,9 +147,7 @@ class MediaPlayerService : Service() {
             }
 
             MEDIA_PLAYER_STOP -> {
-                mediaPlayer?.stop()
-                mediaPlayer?.release()
-                mediaPlayer = null
+                clearMediaPlayer()
                 stopSelf() // 명시적으로 서비스 종료 선언 필요
             }
         }
@@ -155,11 +156,15 @@ class MediaPlayerService : Service() {
     }
 
     override fun onDestroy() {
+        clearMediaPlayer()
+        super.onDestroy()
+    }
+
+    private fun clearMediaPlayer() {
         mediaPlayer?.apply {
             stop()
             release()
         }
         mediaPlayer = null
-        super.onDestroy()
     }
 }
