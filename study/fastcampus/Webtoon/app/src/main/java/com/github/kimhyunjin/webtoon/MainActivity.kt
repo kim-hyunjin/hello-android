@@ -1,11 +1,12 @@
 package com.github.kimhyunjin.webtoon
 
+import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.github.kimhyunjin.webtoon.databinding.ActivityMainBinding
 import com.google.android.material.tabs.TabLayoutMediator
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), WebViewFragment.OnTabNameChangeListener {
 
     private lateinit var binding: ActivityMainBinding
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -15,9 +16,10 @@ class MainActivity : AppCompatActivity() {
 
         binding.viewPager.adapter = ViewPagerAdapter(this)
 
+        val sharedPreference = getSharedPreferences(SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE)
         TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
             run {
-                tab.text = "position $position"
+                tab.text = sharedPreference.getString(getSharedPreferenceTabNameKey(position), "tab $position")
             }
         }.attach()
     }
@@ -33,5 +35,10 @@ class MainActivity : AppCompatActivity() {
         } else {
             super.onBackPressed()
         }
+    }
+
+    override fun onNameChanged(position: Int, name: String) {
+        val tab = binding.tabLayout.getTabAt(position)
+        tab?.text = name
     }
 }
