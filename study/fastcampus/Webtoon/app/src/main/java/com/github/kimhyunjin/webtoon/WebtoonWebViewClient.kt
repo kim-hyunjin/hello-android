@@ -7,7 +7,9 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import com.github.kimhyunjin.webtoon.databinding.FragmentWebViewBinding
 
-class WebtoonWebViewClient(private val binding: FragmentWebViewBinding): WebViewClient() {
+class WebtoonWebViewClient(private val binding: FragmentWebViewBinding,
+    private val saveUrl: (String) -> Unit
+    ): WebViewClient() {
 
     override fun onPageFinished(view: WebView?, url: String?) {
         super.onPageFinished(view, url)
@@ -22,6 +24,10 @@ class WebtoonWebViewClient(private val binding: FragmentWebViewBinding): WebView
     }
 
     override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
+        if (request != null && request.url.toString().contains("comic.naver.com/webtoon/detail")) {
+            saveUrl(request.url.toString())
+            return false
+        }
         if (request != null && request.url.toString().contains("comic.naver.com")) return false
 
         return true

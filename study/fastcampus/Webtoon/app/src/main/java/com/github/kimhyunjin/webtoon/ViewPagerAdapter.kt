@@ -15,6 +15,6 @@ class ViewPagerAdapter(private val mainActivity: MainActivity) :
             "https://comic.naver.com/webtoon/detail?titleId=478261&no=82&week=thu",
             "https://comic.naver.com/webtoon/detail?titleId=769209&no=91&week=wed"
         )
-        return WebViewFragment.newInstance(urls[position])
+        return WebViewFragment.newInstance(urls[position], position)
     }
 }

@@ -2,6 +2,6 @@
     <string name="app_name">Webtoon</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="backToLast">마지막 시점으로 돌아가기</string>
+    <string name="backToLast">최근에 본 웹툰으로</string>
     <string name="changeTabName">탭 이름 바꾸기</string>
 </resources>
