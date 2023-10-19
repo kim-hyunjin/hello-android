@@ -19,9 +19,11 @@ import androidx.core.content.ContextCompat
 import com.github.kimhyunjin.audiorecorder.databinding.ActivityMainBinding
 import java.io.IOException
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), Timer.OnTimerTickListener {
 
     private lateinit var binding: ActivityMainBinding
+    private lateinit var timer: Timer
+
     private var recorder: MediaRecorder? = null
     private var player: MediaPlayer? = null
     private var fileName: String = ""
@@ -29,6 +31,7 @@ class MainActivity : AppCompatActivity() {
     private enum class State {
         RELEASE, RECORDING, PLAYING, PAUSE
     }
+
     private var state: State = State.RELEASE
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,15 +40,18 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         fileName = "${externalCacheDir?.absoluteFile}/record_test.3gp"
+        timer = Timer(this, 40L)
 
         binding.recordButton.setOnClickListener {
-            when(state) {
+            when (state) {
                 State.RELEASE -> {
                     record()
                 }
+
                 State.RECORDING -> {
                     stopRecording()
                 }
+
                 else -> {
 
                 }
@@ -53,18 +59,21 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.playButton.setOnClickListener {
-            when(state) {
+            when (state) {
                 State.RELEASE -> {
                     startPlaying()
                 }
-                State.RECORDING -> {
 
-                }
                 State.PLAYING -> {
                     pausePlaying()
                 }
+
                 State.PAUSE -> {
                     resumePlaying()
+                }
+
+                else -> {
+
                 }
             }
         }
@@ -154,10 +163,17 @@ class MainActivity : AppCompatActivity() {
                 Log.e("APP", "MediaRecorder prepare() failed $e")
             }
 
+            binding.waveFormView.clearData()
             start()
+            timer.start()
         }
 
-        binding.recordButton.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.baseline_stop_24))
+        binding.recordButton.setImageDrawable(
+            ContextCompat.getDrawable(
+                this,
+                R.drawable.baseline_stop_24
+            )
+        )
         binding.recordButton.imageTintList = ColorStateList.valueOf(Color.BLACK)
         binding.playButton.isEnabled = false
         binding.playButton.alpha = 0.3f
@@ -169,10 +185,16 @@ class MainActivity : AppCompatActivity() {
         state = State.RELEASE
         recorder?.apply {
             stop()
+            timer.stop()
             release()
         }
 
-        binding.recordButton.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.baseline_fiber_manual_record_24))
+        binding.recordButton.setImageDrawable(
+            ContextCompat.getDrawable(
+                this,
+                R.drawable.baseline_fiber_manual_record_24
+            )
+        )
         binding.recordButton.imageTintList = ColorStateList.valueOf(Color.RED)
         binding.playButton.isEnabled = true
         binding.playButton.alpha = 1.0f
@@ -191,12 +213,19 @@ class MainActivity : AppCompatActivity() {
                 Log.e("APP", "MediaPlayer prepare() failed $e")
             }
 
+            binding.tvTimer.text = "00:00:00"
             start()
+            binding.waveFormView.clearWave()
+            timer.clearDuration()
+            timer.start()
 
             setOnCompletionListener {
                 state = State.RELEASE
                 binding.recordButton.isEnabled = true
                 binding.recordButton.alpha = 1.0f
+                binding.playButton.setImageResource(R.drawable.baseline_play_arrow_24)
+                timer.stop()
+                timer.clearDuration()
             }
         }
 
@@ -209,6 +238,7 @@ class MainActivity : AppCompatActivity() {
         player?.apply {
             state = State.PAUSE
             pause()
+            timer.stop()
         }
 
         binding.playButton.setImageResource(R.drawable.baseline_play_arrow_24)
@@ -218,6 +248,7 @@ class MainActivity : AppCompatActivity() {
         player?.apply {
             state = State.PLAYING
             start()
+            timer.start()
         }
 
         binding.playButton.setImageResource(R.drawable.baseline_pause_24)
@@ -227,8 +258,12 @@ class MainActivity : AppCompatActivity() {
         state = State.RELEASE
 
         player?.release()
+        timer.stop()
         player = null
 
+        binding.tvTimer.text = "00:00:00"
+        binding.waveFormView.clearWave()
+        binding.playButton.setImageResource(R.drawable.baseline_play_arrow_24)
         binding.recordButton.isEnabled = true
         binding.recordButton.alpha = 1.0f
     }
@@ -252,5 +287,18 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val REQUEST_RECORD_AUDIO = 100
+    }
+
+    override fun onTick(duration: Long) {
+        val milliSec = duration % 1000
+        val sec = (duration / 1000) % 60
+        val min = (duration / 1000 / 60)
+        binding.tvTimer.text = String.format("%02d:%02d:%02d", min, sec, milliSec / 10)
+
+        if (state == State.PLAYING) {
+            binding.waveFormView.replayAmplitude()
+        } else if (state == State.RECORDING) {
+            binding.waveFormView.addAmplitude(recorder?.maxAmplitude?.toFloat() ?: 0f)
+        }
     }
 }
