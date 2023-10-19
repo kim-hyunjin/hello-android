@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
+import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -77,8 +78,7 @@ class MainActivity : AppCompatActivity(), Timer.OnTimerTickListener {
                 }
             }
         }
-        binding.playButton.isEnabled = false
-        binding.playButton.alpha = 0.3f
+        binding.playButton.disable()
 
         binding.stopButton.setOnClickListener {
             stopPlaying()
@@ -177,10 +177,8 @@ class MainActivity : AppCompatActivity(), Timer.OnTimerTickListener {
             )
         )
         binding.recordButton.imageTintList = ColorStateList.valueOf(Color.BLACK)
-        binding.playButton.isEnabled = false
-        binding.playButton.alpha = 0.3f
-        binding.stopButton.isEnabled = false
-        binding.stopButton.alpha = 0.3f
+        binding.playButton.disable()
+        binding.stopButton.disable()
     }
 
     private fun stopRecording() {
@@ -198,10 +196,8 @@ class MainActivity : AppCompatActivity(), Timer.OnTimerTickListener {
             )
         )
         binding.recordButton.imageTintList = ColorStateList.valueOf(Color.RED)
-        binding.playButton.isEnabled = true
-        binding.playButton.alpha = 1.0f
-        binding.stopButton.isEnabled = true
-        binding.stopButton.alpha = 1.0f
+        binding.playButton.enable()
+        binding.stopButton.enable()
     }
 
     private fun startPlaying() {
@@ -223,16 +219,14 @@ class MainActivity : AppCompatActivity(), Timer.OnTimerTickListener {
 
             setOnCompletionListener {
                 state = State.RELEASE
-                binding.recordButton.isEnabled = true
-                binding.recordButton.alpha = 1.0f
+                binding.recordButton.enable()
                 binding.playButton.setImageResource(R.drawable.baseline_play_arrow_24)
                 timer.stop()
                 timer.clearDuration()
             }
         }
 
-        binding.recordButton.isEnabled = false
-        binding.recordButton.alpha = 0.3f
+        binding.recordButton.disable()
         binding.playButton.setImageResource(R.drawable.baseline_pause_24)
     }
 
@@ -266,9 +260,19 @@ class MainActivity : AppCompatActivity(), Timer.OnTimerTickListener {
         binding.tvTimer.text = "00:00:00"
         binding.waveFormView.clearWave()
         binding.playButton.setImageResource(R.drawable.baseline_play_arrow_24)
-        binding.recordButton.isEnabled = true
-        binding.recordButton.alpha = 1.0f
+        binding.recordButton.enable()
     }
+
+    fun View.disable() {
+        isEnabled = false
+        alpha = 0.3f
+    }
+
+    fun View.enable() {
+        isEnabled = true
+        alpha = 1.0f
+    }
+
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
