@@ -77,6 +77,8 @@ class MainActivity : AppCompatActivity(), Timer.OnTimerTickListener {
                 }
             }
         }
+        binding.playButton.isEnabled = false
+        binding.playButton.alpha = 0.3f
 
         binding.stopButton.setOnClickListener {
             stopPlaying()
