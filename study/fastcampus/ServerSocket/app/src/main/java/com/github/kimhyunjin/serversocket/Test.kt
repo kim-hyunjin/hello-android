@@ -24,10 +24,10 @@ fun main() {
 
             // header
             printer.println("HTTP/1.1 200 OK")
-            printer.println("Content-Type: text/html\r\n")
+            printer.println("Content-Type: application/json\r\n")
 
             // body
-            printer.println("<h1>Hello I'm Hyunjin</h1>")
+            printer.println("{\"message\" : \"Hello World!!\"}")
             printer.println("\r\n")
             printer.flush()
             printer.close()

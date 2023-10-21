@@ -8,6 +8,7 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.view.isVisible
+import com.google.gson.Gson
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.OkHttpClient
@@ -37,9 +38,11 @@ class MainActivity : AppCompatActivity() {
             override fun onResponse(call: Call, response: Response) {
                 if (response.isSuccessful) {
                     val body = response.body?.string()
-                    Log.i("Client", "$body")
+                    Log.i("Client", "body - $body")
+                    val message = Gson().fromJson(body, Message::class.java)
+                    Log.i("Client", "message - $message")
                     runOnUiThread {
-                        tvInfo.text = body
+                        tvInfo.text = message.message
                         tvInfo.isVisible = true
 
                         editText.isVisible = false
