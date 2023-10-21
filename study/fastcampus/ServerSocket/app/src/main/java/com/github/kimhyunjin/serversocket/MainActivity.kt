@@ -3,6 +3,11 @@ package com.github.kimhyunjin.serversocket
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.widget.Button
+import android.widget.EditText
+import android.widget.TextView
+import android.widget.Toast
+import androidx.core.view.isVisible
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.OkHttpClient
@@ -16,12 +21,16 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        val editText = findViewById<EditText>(R.id.etServerHost)
+        val confirmButton = findViewById<Button>(R.id.btnConfirm)
+        val tvInfo = findViewById<TextView>(R.id.tvInfo)
+
         val client = OkHttpClient()
-
-        val request = Request.Builder().url("http://10.0.2.2:8080").build()
-
         val callback = object : Callback {
             override fun onFailure(call: Call, e: IOException) {
+                runOnUiThread {
+                    Toast.makeText(this@MainActivity, "수신에 실패했습니다.", Toast.LENGTH_SHORT).show()
+                }
                 Log.e("Client", e.toString())
             }
 
@@ -29,11 +38,27 @@ class MainActivity : AppCompatActivity() {
                 if (response.isSuccessful) {
                     val body = response.body?.string()
                     Log.i("Client", "$body")
+                    runOnUiThread {
+                        tvInfo.text = body
+                        tvInfo.isVisible = true
+
+                        editText.isVisible = false
+                        confirmButton.isVisible = false
+                    }
+                } else {
+                    runOnUiThread {
+                        Toast.makeText(this@MainActivity, "수신에 실패했습니다.", Toast.LENGTH_SHORT).show()
+                    }
                 }
+
             }
 
         }
-        client.newCall(request).enqueue(callback)
+
+        confirmButton.setOnClickListener {
+            val request = Request.Builder().url(editText.text.toString()).build()
+            client.newCall(request).enqueue(callback)
+        }
 
 
 //        Thread {
