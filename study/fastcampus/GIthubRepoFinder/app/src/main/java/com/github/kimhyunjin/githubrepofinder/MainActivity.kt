@@ -11,15 +11,12 @@ import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.github.kimhyunjin.githubrepofinder.adapter.UserAdapter
 import com.github.kimhyunjin.githubrepofinder.databinding.ActivityMainBinding
-import com.github.kimhyunjin.githubrepofinder.model.Repo
 import com.github.kimhyunjin.githubrepofinder.model.UserDto
 import com.github.kimhyunjin.githubrepofinder.network.GithubService
-import okhttp3.OkHttpClient
+import com.github.kimhyunjin.githubrepofinder.network.GithubServiceSingleton
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 
 class MainActivity : AppCompatActivity() {
 
@@ -40,17 +37,7 @@ class MainActivity : AppCompatActivity() {
             intent.putExtra("username", it.username)
             startActivity(intent)
         }
-        val client = OkHttpClient.Builder().addInterceptor { chain ->
-            val newReq =
-                chain.request().newBuilder()
-                    .addHeader("Authorization", "Bearer ${this@MainActivity.getString(R.string.GITHUB_API_KEY)}").build()
-            chain.proceed(newReq)
-        }.build()
-
-        val retrofit = Retrofit.Builder().baseUrl("https://api.github.com/").client(client)
-            .addConverterFactory(GsonConverterFactory.create()).build()
-
-        githubService = retrofit.create(GithubService::class.java)
+        githubService = GithubServiceSingleton.getInstance(this)
 
 
         binding.userRecyclerView.apply {
@@ -85,16 +72,5 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-    private fun searchRepo() {
-        githubService.listRepos("kim-hyunjin").enqueue(object : Callback<List<Repo>> {
-            override fun onResponse(call: Call<List<Repo>>, response: Response<List<Repo>>) {
-                Log.i("listRepos", response.body().toString())
-            }
 
-            override fun onFailure(call: Call<List<Repo>>, t: Throwable) {
-                Log.e("listRepos", t.toString())
-            }
-
-        })
-    }
 }
