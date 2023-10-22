@@ -1,5 +1,6 @@
 package com.github.kimhyunjin.githubrepofinder
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
@@ -34,7 +35,11 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        userAdapter = UserAdapter()
+        userAdapter = UserAdapter {
+            val intent = Intent(this@MainActivity, RepoActivity::class.java)
+            intent.putExtra("username", it.username)
+            startActivity(intent)
+        }
         val client = OkHttpClient.Builder().addInterceptor { chain ->
             val newReq =
                 chain.request().newBuilder()

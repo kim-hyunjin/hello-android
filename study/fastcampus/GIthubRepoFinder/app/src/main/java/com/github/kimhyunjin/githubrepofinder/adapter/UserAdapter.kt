@@ -8,13 +8,16 @@ import androidx.recyclerview.widget.RecyclerView
 import com.github.kimhyunjin.githubrepofinder.databinding.ItemUserBinding
 import com.github.kimhyunjin.githubrepofinder.model.User
 
-class UserAdapter : ListAdapter<User, UserAdapter.ViewHolder>(diffUtil) {
+class UserAdapter(val onClick: (User) -> Unit) : ListAdapter<User, UserAdapter.ViewHolder>(diffUtil) {
 
     inner class ViewHolder(private val binding: ItemUserBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: User) {
             binding.usernameTextView.text = item.username
+            binding.root.setOnClickListener {
+                onClick(item)
+            }
         }
 
     }
