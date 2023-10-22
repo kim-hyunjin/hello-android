@@ -10,7 +10,7 @@ import retrofit2.http.Query
 interface GithubService {
 
     @GET("users/{username}/repos")
-    fun listRepos(@Path("username") username: String): Call<List<Repo>>
+    fun listRepos(@Path("username") username: String, @Query("page") page: Int): Call<List<Repo>>
 
     @GET("search/users")
     fun searchUsers(@Query("q") query: String): Call<UserDto>
