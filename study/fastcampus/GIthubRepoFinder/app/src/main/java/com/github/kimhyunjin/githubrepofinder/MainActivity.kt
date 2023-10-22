@@ -3,6 +3,9 @@ package com.github.kimhyunjin.githubrepofinder
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.github.kimhyunjin.githubrepofinder.adapter.UserAdapter
+import com.github.kimhyunjin.githubrepofinder.databinding.ActivityMainBinding
 import com.github.kimhyunjin.githubrepofinder.model.Repo
 import com.github.kimhyunjin.githubrepofinder.model.UserDto
 import com.github.kimhyunjin.githubrepofinder.network.GithubService
@@ -14,9 +17,18 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 class MainActivity : AppCompatActivity() {
+
+    private lateinit var binding: ActivityMainBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        val userAdapter = UserAdapter()
+        binding.userRecyclerView.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = userAdapter
+        }
 
         val client = OkHttpClient.Builder().addInterceptor { chain ->
             val newReq =
@@ -43,7 +55,7 @@ class MainActivity : AppCompatActivity() {
         githubService.searchUsers("kim-hyunjin").enqueue(object : Callback<UserDto> {
             override fun onResponse(call: Call<UserDto>, response: Response<UserDto>) {
                 Log.i("searchUsers", response.body().toString())
-
+                userAdapter.submitList(response.body()?.items)
             }
 
             override fun onFailure(call: Call<UserDto>, t: Throwable) {
