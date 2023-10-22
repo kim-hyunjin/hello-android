@@ -54,4 +54,7 @@ dependencies {
     implementation("com.tickaroo.tikxml:core:0.8.13")
     implementation("com.tickaroo.tikxml:retrofit-converter:0.8.13")
     kapt("com.tickaroo.tikxml:processor:0.8.13")
+
+    implementation("org.jsoup:jsoup:1.16.2")
+    implementation("com.github.bumptech.glide:glide:4.16.0")
 }
