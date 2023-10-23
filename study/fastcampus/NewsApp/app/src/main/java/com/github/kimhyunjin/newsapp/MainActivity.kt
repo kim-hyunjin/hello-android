@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.github.kimhyunjin.newsapp.databinding.ActivityMainBinding
 import com.tickaroo.tikxml.TikXml
@@ -102,6 +103,7 @@ class MainActivity : AppCompatActivity() {
                 Log.i("list", list.toString())
                 newsAdapter.submitList(list)
 
+                binding.notFountView.isVisible = list.isEmpty()
 
                 list.forEachIndexed { index, news ->
                     Thread {

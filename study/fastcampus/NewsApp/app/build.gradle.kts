@@ -57,4 +57,6 @@ dependencies {
 
     implementation("org.jsoup:jsoup:1.16.2")
     implementation("com.github.bumptech.glide:glide:4.16.0")
+
+    implementation("com.airbnb.android:lottie:6.1.0")
 }
