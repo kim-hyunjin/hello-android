@@ -1,8 +1,11 @@
 package com.github.kimhyunjin.newsapp
 
+import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.github.kimhyunjin.newsapp.databinding.ActivityMainBinding
 import com.tickaroo.tikxml.TikXml
@@ -69,6 +72,21 @@ class MainActivity : AppCompatActivity() {
             binding.chipGroup.clearCheck()
             binding.sportChip.isChecked = true
             newsService.categoryFeed(NewsCategory.SPORTS.key).submitList()
+        }
+
+        binding.searchTextInputEditText.setOnEditorActionListener { v, actionId, event ->
+            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                binding.chipGroup.clearCheck()
+                binding.searchTextInputEditText.clearFocus()
+
+                // hide keyboard
+                val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                imm.hideSoftInputFromWindow(v.windowToken, 0)
+
+                newsService.search(v.text.toString()).submitList()
+                return@setOnEditorActionListener true
+            }
+            return@setOnEditorActionListener false
         }
     }
 
