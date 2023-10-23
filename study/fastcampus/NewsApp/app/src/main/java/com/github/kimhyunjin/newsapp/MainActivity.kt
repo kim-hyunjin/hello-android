@@ -38,6 +38,38 @@ class MainActivity : AppCompatActivity() {
 
         val newsService = retrofit.create(NewsService::class.java)
         newsService.mainFeed().submitList()
+
+        binding.feedChip.isChecked = true
+        binding.feedChip.setOnClickListener {
+            binding.chipGroup.clearCheck()
+            binding.feedChip.isChecked = true
+            newsService.mainFeed().submitList()
+        }
+        binding.politicsChip.setOnClickListener {
+            binding.chipGroup.clearCheck()
+            binding.politicsChip.isChecked = true
+            newsService.categoryFeed(NewsCategory.POLITICS.key).submitList()
+        }
+        binding.economyChip.setOnClickListener {
+            binding.chipGroup.clearCheck()
+            binding.economyChip.isChecked = true
+            newsService.categoryFeed(NewsCategory.ECONOMY.key).submitList()
+        }
+        binding.societyChip.setOnClickListener {
+            binding.chipGroup.clearCheck()
+            binding.societyChip.isChecked = true
+            newsService.categoryFeed(NewsCategory.SOCIETY.key).submitList()
+        }
+        binding.cultureChip.setOnClickListener {
+            binding.chipGroup.clearCheck()
+            binding.cultureChip.isChecked = true
+            newsService.categoryFeed(NewsCategory.CULTURE.key).submitList()
+        }
+        binding.sportChip.setOnClickListener {
+            binding.chipGroup.clearCheck()
+            binding.sportChip.isChecked = true
+            newsService.categoryFeed(NewsCategory.SPORTS.key).submitList()
+        }
     }
 
     private fun Call<NewsRss>.submitList() {

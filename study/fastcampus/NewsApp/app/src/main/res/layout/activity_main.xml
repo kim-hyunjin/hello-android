@@ -51,11 +51,11 @@
                 android:text="@string/society" />
 
             <com.google.android.material.chip.Chip
-                android:id="@+id/itChip"
+                android:id="@+id/cultureChip"
                 style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/it" />
+                android:text="@string/culture" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/sportChip"
