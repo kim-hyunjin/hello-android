@@ -1,0 +1,11 @@
+- 계산기 UI 를 그리고, 간단한 계산 기능을 구현할 수 있다
+    - TableLayout이 아닌, ConstraintLayout-Flow 로 계산기 UI 그리기
+    - 다크/라이트 모드에 따른 UI 그리기
+- UI
+    - ConstraintLayout - Flow
+    - style
+    - color (Light/Dark)
+    - theme
+- Kotlin
+    - when
+    - StringBuilder
