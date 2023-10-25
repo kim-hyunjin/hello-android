@@ -1,6 +1,6 @@
 # 녹음앱 (part2 - chapter2)
 
-![캡처1](./screenshot/1.jpeg)
+![캡처1](https://github.com/Fastcampus-Android-Lecture-Project-2023/part2-chapter2/blob/main/screenshot/1.jpeg)
 
 ## 이 챕터를 통해 배우는 것
 
