@@ -1,7 +1,7 @@
 # 오늘의공지 (part2 - chapter 3)
 
-![캡처1](./screenshot/1.png)
-![캡처2](./screenshot/2.png)
+![캡처1](https://github.com/Fastcampus-Android-Lecture-Project-2023/part2-chapter3/blob/main/screenshot/1.png)
+![캡처2](https://github.com/Fastcampus-Android-Lecture-Project-2023/part2-chapter3/blob/main/screenshot/2.png)
 
 ## 이 챕터를 통해 배우는 것
 
