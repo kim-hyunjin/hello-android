@@ -1,8 +1,8 @@
 # 웹툰앱 (part2 - chapter 1)
 
 
-![스크린샷](./screenshot/1.png)
-![스크린샷](./screenshot/2.png)
+![스크린샷](https://github.com/Fastcampus-Android-Lecture-Project-2023/part2-chapter1/blob/main/screenshot/1.png)
+![스크린샷](https://github.com/Fastcampus-Android-Lecture-Project-2023/part2-chapter1/blob/main/screenshot/2.png)
 
 ## 이 챕터를 통해 배우는 것
 
