@@ -4,6 +4,7 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.fragment.app.Fragment
+import com.github.kimhyunjin.chattingapp.chatlist.ChatListFragment
 import com.github.kimhyunjin.chattingapp.databinding.ActivityMainBinding
 import com.github.kimhyunjin.chattingapp.userlist.UserFragment
 import com.google.firebase.auth.ktx.auth
@@ -13,6 +14,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private val userFragment = UserFragment()
+    private val chatListFragment = ChatListFragment()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -32,6 +34,7 @@ class MainActivity : AppCompatActivity() {
                     return@setOnItemSelectedListener true
                 }
                 R.id.chatroomList -> {
+                    replaceFragment(chatListFragment)
                     return@setOnItemSelectedListener true
                 }
                 R.id.myPage -> {
