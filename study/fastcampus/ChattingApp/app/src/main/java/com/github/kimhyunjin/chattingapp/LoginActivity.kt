@@ -7,6 +7,7 @@ import android.util.Log
 import android.widget.Toast
 import com.github.kimhyunjin.chattingapp.databinding.ActivityLoginBinding
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 
 class LoginActivity : AppCompatActivity() {
@@ -24,13 +25,14 @@ class LoginActivity : AppCompatActivity() {
                 showMessage("이메일 또는 패스워드가 입력되지 않았습니다.")
                 return@setOnClickListener
             }
-            Firebase.auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(this) {
-                if (it.isSuccessful) {
-                    showMessage("회원가입에 성공했습니다.")
-                } else {
-                    showMessage("회원가입에 실패했습니다.")
+            Firebase.auth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this) {
+                    if (it.isSuccessful) {
+                        showMessage("회원가입에 성공했습니다.")
+                    } else {
+                        showMessage("회원가입에 실패했습니다.")
+                    }
                 }
-            }
         }
 
         binding.signInButton.setOnClickListener {
@@ -41,7 +43,16 @@ class LoginActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
             Firebase.auth.signInWithEmailAndPassword(email, password).addOnCompleteListener(this) {
-                if (it.isSuccessful) {
+                val currentUser = Firebase.auth.currentUser
+                if (it.isSuccessful && currentUser != null) {
+
+                    val user = mutableMapOf<String, Any>()
+                    user["userId"] = currentUser.uid
+                    user["username"] = email
+
+                    Firebase.database(Key.DB_URL).reference.child(Key.DB_USERS)
+                        .child(currentUser.uid).updateChildren(user)
+
                     val intent = Intent(this, MainActivity::class.java)
                     startActivity(intent)
                     finish()
