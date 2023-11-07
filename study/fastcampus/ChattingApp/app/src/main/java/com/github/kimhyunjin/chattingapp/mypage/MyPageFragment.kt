@@ -5,10 +5,13 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import com.github.kimhyunjin.chattingapp.Key
 import com.github.kimhyunjin.chattingapp.LoginActivity
 import com.github.kimhyunjin.chattingapp.R
 import com.github.kimhyunjin.chattingapp.databinding.FragmentMypageBinding
+import com.github.kimhyunjin.chattingapp.userlist.UserItem
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 
 class MyPageFragment: Fragment(R.layout.fragment_mypage) {
@@ -17,6 +20,15 @@ class MyPageFragment: Fragment(R.layout.fragment_mypage) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentMypageBinding.bind(view)
+
+        val currentUserId = Firebase.auth.currentUser?.uid ?: ""
+        val currentUserDB = Firebase.database.reference.child(Key.DB_USERS).child(currentUserId)
+
+        currentUserDB.get().addOnSuccessListener {
+            val currentUserItem = it.getValue(UserItem::class.java) ?: return@addOnSuccessListener
+            binding.usernameEditText.setText(currentUserItem.username)
+            binding.descriptionEditText.setText(currentUserItem.description)
+        }
 
         binding.applyButton.setOnClickListener {
             val username = binding.usernameEditText.text.toString()
@@ -27,7 +39,10 @@ class MyPageFragment: Fragment(R.layout.fragment_mypage) {
                 return@setOnClickListener
             }
 
-            // TODO firebase 연결
+            val user = mutableMapOf<String, Any>()
+            user["username"] = username
+            user["description"] = description
+            currentUserDB.updateChildren(user)
         }
 
         binding.signOutButton.setOnClickListener {
