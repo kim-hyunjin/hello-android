@@ -2,6 +2,7 @@ package com.github.kimhyunjin.chattingapp.userlist
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -71,7 +72,10 @@ class UserFragment : Fragment(R.layout.fragment_userlist) {
                         }
                     }
 
+                    Log.i("USERS - from firebase", list.toString())
+
                     userListAdapter.submitList(list)
+                    userListAdapter.notifyItemInserted(list.lastIndex)
                 }
 
                 override fun onCancelled(error: DatabaseError) {

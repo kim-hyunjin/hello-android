@@ -29,6 +29,7 @@ class MainActivity : AppCompatActivity() {
             finish()
         }
 
+        replaceFragment(userFragment)
         binding.bottomNavigationView.setOnItemSelectedListener {
             when (it.itemId) {
                 R.id.userList -> {
