@@ -21,6 +21,7 @@ class ChatActivity : AppCompatActivity() {
     private var chatRoomId = ""
     private var otherUserId = ""
     private var myUserId = ""
+    private var myUsername = ""
 
     private val chatItemList = mutableListOf<ChatItem>()
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,41 +37,71 @@ class ChatActivity : AppCompatActivity() {
 
         Firebase.database.reference.child(Key.DB_USERS).child(myUserId).get().addOnSuccessListener {
             val myUserItem = it.getValue(UserItem::class.java)
+            myUsername = myUserItem?.username ?: ""
         }
-        Firebase.database.reference.child(Key.DB_USERS).child(otherUserId).get().addOnSuccessListener {
-            val otherUserItem = it.getValue(UserItem::class.java)
-            chatAdapter.otherUserItem = otherUserItem
-        }
-
-        Firebase.database.reference.child(Key.DB_CHATS).child(chatRoomId).addChildEventListener(object : ChildEventListener {
-            override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
-                val chatItem = snapshot.getValue(ChatItem::class.java)
-                chatItem ?: return
-                chatItemList.add(chatItem)
-                chatAdapter.submitList(chatItemList)
+        Firebase.database.reference.child(Key.DB_USERS).child(otherUserId).get()
+            .addOnSuccessListener {
+                val otherUserItem = it.getValue(UserItem::class.java)
+                chatAdapter.otherUserItem = otherUserItem
             }
 
-            override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
-                TODO("Not yet implemented")
-            }
+        Firebase.database.reference.child(Key.DB_CHATS).child(chatRoomId)
+            .addChildEventListener(object : ChildEventListener {
+                override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
+                    val chatItem = snapshot.getValue(ChatItem::class.java)
+                    chatItem ?: return
+                    chatItemList.add(chatItem)
+                    chatAdapter.submitList(chatItemList)
+                }
 
-            override fun onChildRemoved(snapshot: DataSnapshot) {
-                TODO("Not yet implemented")
-            }
+                override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
+                    TODO("Not yet implemented")
+                }
 
-            override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {
-                TODO("Not yet implemented")
-            }
+                override fun onChildRemoved(snapshot: DataSnapshot) {
+                    TODO("Not yet implemented")
+                }
 
-            override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
-            }
+                override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {
+                    TODO("Not yet implemented")
+                }
 
-        })
+                override fun onCancelled(error: DatabaseError) {
+                    TODO("Not yet implemented")
+                }
+
+            })
 
         binding.chatRecyclerView.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = chatAdapter
+        }
+
+        binding.sendButton.setOnClickListener {
+            val message = binding.messageEditText.text.toString()
+            if (message.isEmpty()) {
+                return@setOnClickListener
+            }
+
+            Firebase.database.reference.child(Key.DB_CHATS).child(chatRoomId).push().apply {
+                val chatItem = ChatItem(
+                    message = message,
+                    userId = myUserId,
+                    chatId = key
+                )
+                setValue(chatItem)
+            }
+
+            val updates = hashMapOf<String, Any>(
+                "${Key.DB_CHAT_ROOMS}/$myUserId/$otherUserId/lastMessage" to message,
+                "${Key.DB_CHAT_ROOMS}/$otherUserId/$myUserId/lastMessage" to message,
+                "${Key.DB_CHAT_ROOMS}/$otherUserId/$myUserId/chatRoomId" to chatRoomId,
+                "${Key.DB_CHAT_ROOMS}/$otherUserId/$myUserId/otherUserId" to myUserId,
+                "${Key.DB_CHAT_ROOMS}/$otherUserId/$myUserId/otherUserName" to myUsername,
+            )
+            Firebase.database.reference.updateChildren(updates)
+
+            binding.messageEditText.text.clear()
         }
     }
 
