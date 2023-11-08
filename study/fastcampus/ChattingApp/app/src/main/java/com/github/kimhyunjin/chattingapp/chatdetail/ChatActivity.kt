@@ -28,8 +28,8 @@ class ChatActivity : AppCompatActivity() {
         binding = ActivityChatBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        chatRoomId = intent.getStringExtra("chatRoomId") ?: return
-        otherUserId = intent.getStringExtra("otherUserId") ?: return
+        chatRoomId = intent.getStringExtra(EXTRA_CHAT_ROOM_ID) ?: return
+        otherUserId = intent.getStringExtra(EXTRA_OTHER_USER_ID) ?: return
         myUserId = Firebase.auth.currentUser?.uid ?: ""
 
         val chatAdapter = ChatAdapter()
@@ -72,5 +72,10 @@ class ChatActivity : AppCompatActivity() {
             layoutManager = LinearLayoutManager(context)
             adapter = chatAdapter
         }
+    }
+
+    companion object {
+        const val EXTRA_CHAT_ROOM_ID = "chatRoomId"
+        const val EXTRA_OTHER_USER_ID = "otherUserId"
     }
 }
