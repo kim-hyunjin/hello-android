@@ -9,6 +9,7 @@ import com.github.kimhyunjin.chattingapp.databinding.ActivityLoginBinding
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.messaging.ktx.messaging
 
 class LoginActivity : AppCompatActivity() {
 
@@ -46,16 +47,22 @@ class LoginActivity : AppCompatActivity() {
                 val currentUser = Firebase.auth.currentUser
                 if (it.isSuccessful && currentUser != null) {
 
-                    val user = mutableMapOf<String, Any>()
-                    user["userId"] = currentUser.uid
-                    user["username"] = email
+                    Firebase.messaging.token.addOnCompleteListener { task ->
+                        val token = task.result
+                        val user = mutableMapOf<String, Any>()
+                        user["userId"] = currentUser.uid
+                        user["username"] = email
+                        user["fcmToken"] = token
 
-                    Firebase.database(Key.DB_URL).reference.child(Key.DB_USERS)
-                        .child(currentUser.uid).updateChildren(user)
+                        Firebase.database(Key.DB_URL).reference.child(Key.DB_USERS)
+                            .child(currentUser.uid).updateChildren(user)
 
-                    val intent = Intent(this, MainActivity::class.java)
-                    startActivity(intent)
-                    finish()
+                        val intent = Intent(this, MainActivity::class.java)
+                        startActivity(intent)
+                        finish()
+                    }
+
+
                 } else {
                     Log.e("LoginActivity", it.exception.toString())
                     showMessage("로그인에 실패했습니다.")
