@@ -2,6 +2,7 @@ package com.github.kimhyunjin.chattingapp.chatdetail
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.github.kimhyunjin.chattingapp.Key
 import com.github.kimhyunjin.chattingapp.databinding.ActivityChatBinding
@@ -12,12 +13,22 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.Response
+import org.json.JSONObject
+import java.io.IOException
 
 class ChatActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityChatBinding
     private var chatRoomId = ""
     private var otherUserId = ""
+    private var otherUserFcmToken = ""
     private var myUserId = ""
     private var myUsername = ""
 
@@ -44,6 +55,7 @@ class ChatActivity : AppCompatActivity() {
         }
         getUserItemWithId(otherUserId) { otherUserItem ->
             chatAdapter.otherUserItem = otherUserItem
+            otherUserFcmToken = otherUserItem.fcmToken ?: ""
         }
         observeChatAdded()
 
@@ -116,6 +128,35 @@ class ChatActivity : AppCompatActivity() {
             "${Key.DB_CHAT_ROOMS}/$otherUserId/$myUserId/otherUserName" to myUsername,
         )
         Firebase.database.reference.updateChildren(updates)
+
+        sendNotification(message)
+    }
+
+    private fun sendNotification(message: String) {
+        val client = OkHttpClient()
+
+        val root = JSONObject()
+        val notification = JSONObject()
+        notification.put("title", myUsername)
+        notification.put("body", message)
+        root.put("to", otherUserFcmToken)
+        root.put("priority", "high")
+        root.put("notification", notification)
+
+        val body = root.toString().toRequestBody("application/json; charset=utf-8".toMediaType())
+        val request = Request.Builder().url("https://fcm.googleapis.com/fcm/send").post(body)
+            .header("Authorization", "key=${Key.FCM_SERVER_KEY}").build()
+
+        client.newCall(request).enqueue(object : Callback{
+            override fun onFailure(call: Call, e: IOException) {
+                Log.e("notification send", e.toString())
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                Log.i("notification send", response.toString())
+            }
+
+        })
     }
 
     companion object {

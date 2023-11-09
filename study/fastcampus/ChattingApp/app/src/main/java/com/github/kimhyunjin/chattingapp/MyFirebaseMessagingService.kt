@@ -23,11 +23,12 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.createNotificationChannel(mChannel)
 
+        val title = message.notification?.title
         val body = message.notification?.body
         val builder = NotificationCompat.Builder(
             applicationContext,
             getString(R.string.default_notification_channel_id)
-        ).setSmallIcon(R.drawable.ic_baseline_chat_24).setContentTitle(getString(R.string.app_name))
+        ).setSmallIcon(R.drawable.ic_baseline_chat_24).setContentTitle(title)
             .setContentText(body)
 
         notificationManager.notify(0, builder.build())

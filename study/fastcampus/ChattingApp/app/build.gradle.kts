@@ -53,4 +53,6 @@ dependencies {
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.firebase:firebase-database-ktx")
     implementation("com.google.firebase:firebase-messaging-ktx:23.2.1")
+
+    implementation("com.squareup.okhttp3:okhttp:4.10.0")
 }
