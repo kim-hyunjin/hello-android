@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.github.kimhyunjin.chattingapp.Key
 import com.github.kimhyunjin.chattingapp.databinding.ActivityChatBinding
 import com.github.kimhyunjin.chattingapp.userlist.UserItem
@@ -35,6 +36,7 @@ class ChatActivity : AppCompatActivity() {
     private val chatItemList = mutableListOf<ChatItem>()
 
     private lateinit var chatAdapter: ChatAdapter
+    private lateinit var linearLayoutManager: LinearLayoutManager
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityChatBinding.inflate(layoutInflater)
@@ -45,10 +47,23 @@ class ChatActivity : AppCompatActivity() {
         myUserId = Firebase.auth.currentUser?.uid ?: ""
 
         chatAdapter = ChatAdapter()
+        linearLayoutManager = LinearLayoutManager(this)
         binding.chatRecyclerView.apply {
-            layoutManager = LinearLayoutManager(context)
+            layoutManager = linearLayoutManager
             adapter = chatAdapter
         }
+
+        chatAdapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
+            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+                super.onItemRangeInserted(positionStart, itemCount)
+
+                linearLayoutManager.smoothScrollToPosition(
+                    binding.chatRecyclerView,
+                    null,
+                    chatAdapter.itemCount
+                )
+            }
+        })
 
         getUserItemWithId(myUserId) {
             myUsername = it.username ?: ""
@@ -147,7 +162,7 @@ class ChatActivity : AppCompatActivity() {
         val request = Request.Builder().url("https://fcm.googleapis.com/fcm/send").post(body)
             .header("Authorization", "key=${Key.FCM_SERVER_KEY}").build()
 
-        client.newCall(request).enqueue(object : Callback{
+        client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 Log.e("notification send", e.toString())
             }
