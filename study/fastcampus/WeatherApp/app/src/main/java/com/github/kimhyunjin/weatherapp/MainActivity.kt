@@ -35,8 +35,35 @@ class MainActivity : AppCompatActivity() {
                 call: Call<WeatherResponse>,
                 response: Response<WeatherResponse>
             ) {
-                response.body()?.response?.body?.items?.entities?.get(0)?.toString()
-                    ?.let { Log.i("Weather", it) }
+                val weatherDateTimeMap = mutableMapOf<String, Forecast>()
+                val weatherList = response.body()?.response?.body?.items?.entities
+
+                weatherList?.forEach {
+                    Log.i("Weather", it.toString())
+                    val key = "${it.forecastDate}/${it.forecastTime}"
+                    weatherDateTimeMap.putIfAbsent(key, Forecast(date = it.forecastDate, time = it.forecastTime))
+
+                    weatherDateTimeMap[key].apply {
+                        if (this != null && it.category != null) {
+                            when(it.category) {
+                                Category.POP -> {
+                                    precipitation = it.forecastValue.toInt()
+                                }
+                                Category.PTY -> {
+                                    precipitationType = PrecipitationType.fromCode(it.forecastValue.toInt())
+                                }
+                                Category.SKY -> {
+                                    sky = SkyType.fromCode(it.forecastValue.toInt())
+                                }
+                                Category.TMP -> {
+                                    temperature = it.forecastValue.toDouble()
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Log.i("Forecast", weatherDateTimeMap.toString())
             }
 
             override fun onFailure(call: Call<WeatherResponse>, t: Throwable) {
