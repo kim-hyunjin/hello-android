@@ -25,11 +25,14 @@ class MainActivity : AppCompatActivity() {
 
         val service = retrofit.create(WeatherService::class.java)
 
+        val baseDateTime = BaseDateTime.getCurrentBaseDateTime()
+        val converter = GeoPointConverter()
+        val point = converter.convert(lat = 37.5532, lon=127.1906)
         service.getForecast(
-            baseDate = "20231112",
-            baseTime = "0500",
-            nx = 55,
-            ny = 127
+            baseDate = baseDateTime.baseDate,
+            baseTime = baseDateTime.baseTime,
+            nx = point.nx,
+            ny = point.ny
         ).enqueue(object : Callback<WeatherResponse> {
             override fun onResponse(
                 call: Call<WeatherResponse>,
