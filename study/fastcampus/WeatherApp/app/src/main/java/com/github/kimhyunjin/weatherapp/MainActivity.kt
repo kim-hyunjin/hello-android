@@ -6,12 +6,12 @@ import android.content.pm.PackageManager
 import android.location.Geocoder
 import android.location.Location
 import android.net.Uri
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.github.kimhyunjin.weatherapp.databinding.ActivityMainBinding
 import com.github.kimhyunjin.weatherapp.databinding.ItemForecastBinding
@@ -68,14 +68,18 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        fusedLocationClient.lastLocation.addOnSuccessListener {
-            if (it != null) {
-                Log.i("Location", "${it.latitude}, ${it.longitude}")
-                updateLocationTextView(it)
-                fetchForecast(it)
-            }
-        }
-
+//        fusedLocationClient.lastLocation.addOnSuccessListener {
+//            if (it != null) {
+//                Log.i("Location", "${it.latitude}, ${it.longitude}")
+//                updateLocationTextView(it)
+//                fetchForecast(it)
+//            }
+//        }
+        val targetLocation = Location("") //provider name is unnecessary
+        targetLocation.latitude = 37.5635694444444
+        targetLocation.longitude = 126.980008333333
+        updateLocationTextView(targetLocation)
+        fetchForecast(targetLocation)
     }
 
     private fun updateLocationTextView(location: Location) {
