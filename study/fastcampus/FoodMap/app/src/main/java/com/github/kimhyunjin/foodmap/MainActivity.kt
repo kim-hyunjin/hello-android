@@ -7,6 +7,7 @@ import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.github.kimhyunjin.foodmap.databinding.ActivityMainBinding
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.CameraAnimation
 import com.naver.maps.map.CameraUpdate
@@ -22,8 +23,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var binding: ActivityMainBinding
     private var naverMap: NaverMap? = null
     private var recyclerViewAdapter: RestaurantListAdapter = RestaurantListAdapter {
-        moveCamera(it)
+        moveCamera(it, 17.0)
     }
+    private var markerList = emptyList<Marker>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,7 +72,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                     return
                 }
 
-                val markerList = searchItemList.map {
+                removeMakersFromMap()
+                markerList = searchItemList.map {
                     Marker(
                         it.getLanLng()
                     ).apply {
@@ -83,7 +86,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
                 recyclerViewAdapter.setData(searchItemList)
 
-                moveCamera(markerList.first().position)
+                moveCamera(markerList.first().position, 13.0)
             }
 
             override fun onFailure(call: Call<SearchResult>, t: Throwable) {
@@ -94,10 +97,22 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         })
     }
 
-    fun moveCamera(latLng: LatLng) {
-        val cameraUpdate = CameraUpdate.scrollTo(latLng)
+    private fun moveCamera(latLng: LatLng, zoomLevel: Double) {
+        val cameraUpdate = CameraUpdate.scrollAndZoomTo(latLng, zoomLevel)
             .animate(CameraAnimation.Easing)
         naverMap!!.moveCamera(cameraUpdate)
+        collapseBottomSheet()
+    }
+
+    private fun collapseBottomSheet() {
+        val bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheetLayout.root)
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+    }
+
+    private fun removeMakersFromMap() {
+        markerList.forEach {
+            it.map = null
+        }
     }
 
     override fun onStart() {
