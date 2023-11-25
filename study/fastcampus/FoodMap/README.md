@@ -1,8 +1,8 @@
 
 # 대동맛집도 (part2-chapter8)
 
-![1](./screenshot/1.png)
-![2](./screenshot/2.png)
+![1](https://github.com/Fastcampus-Android-Lecture-Project-2023/part2-chapter8/blob/main/screenshot/1.png)
+![2](https://github.com/Fastcampus-Android-Lecture-Project-2023/part2-chapter8/blob/main/screenshot/2.png)
 
 ## 이 챕터를 통해 배우는 것
 
