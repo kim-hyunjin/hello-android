@@ -12,6 +12,7 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.auth
 import com.google.firebase.database.database
+import com.kakao.sdk.auth.AuthApiClient
 import com.kakao.sdk.auth.model.OAuthToken
 import com.kakao.sdk.common.KakaoSdk
 import com.kakao.sdk.common.model.ClientError
@@ -45,6 +46,14 @@ class LoginActivity : AppCompatActivity() {
 
         // Kakao SDK 초기화
         KakaoSdk.init(this, "1fee26e3619c1a35f974d497df14516f")
+
+        if (AuthApiClient.instance.hasToken()) {
+            UserApiClient.instance.accessTokenInfo { tokenInfo, error ->
+                if (error == null) {
+                    getKakaoAccountInfo()
+                }
+            }
+        }
 
         emailLoginResult =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
@@ -132,8 +141,6 @@ class LoginActivity : AppCompatActivity() {
         Firebase.auth.createUserWithEmailAndPassword(email, uid).addOnCompleteListener {
             if (it.isSuccessful) {
                 updateFirebaseUserInfo(user)
-            } else {
-                showErrorToast()
             }
         }.addOnFailureListener { firebaseCreateUserError ->
             if (firebaseCreateUserError is FirebaseAuthUserCollisionException) {

@@ -20,8 +20,13 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.model.MarkerOptions
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
+import com.google.firebase.database.ChildEventListener
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.database
 
 class MapActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -45,6 +50,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
             }
         }
+    private val markerMap = hashMapOf<String, Marker>()
 
     private val locationCallback = object : LocationCallback() {
         override fun onLocationResult(locationResult: LocationResult) {
@@ -61,8 +67,6 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
                 locationMap["latitude"] = location.latitude
                 locationMap["longitude"] = location.longitude
                 Firebase.database.reference.child("Person").child(uid).updateChildren(locationMap)
-                // 지도 마커 움직이기
-
             }
         }
     }
@@ -78,6 +82,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
         getCurrentLocation()
+        setupFirebaseDatabase()
     }
 
     private fun getCurrentLocation() {
@@ -121,11 +126,74 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
         )
     }
 
+    private fun setupFirebaseDatabase() {
+        Firebase.database.reference.child("Person")
+            .addChildEventListener(object : ChildEventListener {
+                override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
+                    val person = snapshot.getValue(Person::class.java) ?: return
+                    val uid = person.uid ?: return
+
+                    if (markerMap[uid] == null) {
+                        markerMap[uid] = makeNewMarker(person, uid) ?: return
+                    }
+
+                }
+
+                override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
+                    val person = snapshot.getValue(Person::class.java) ?: return
+                    val uid = person.uid ?: return
+
+                    if (markerMap[uid] == null) {
+                        markerMap[uid] = makeNewMarker(person, uid) ?: return
+                    } else {
+                        if (person.latitude == null || person.longitude == null) return
+                        markerMap[uid]?.position = LatLng(person.latitude!!, person.longitude!!)
+                    }
+                }
+
+                override fun onChildRemoved(snapshot: DataSnapshot) {
+                    TODO("Not yet implemented")
+                }
+
+                override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                }
+            })
+    }
+
+    private fun makeNewMarker(person: Person, uid: String): Marker? {
+        val latitude = person.latitude ?: return null
+        val longitude = person.longitude ?: return null
+
+        val marker = googleMap.addMarker(
+            MarkerOptions().position(
+                LatLng(
+                    latitude,
+                    longitude
+                )
+            ).title(person.name)
+        ) ?: return null
+
+        return marker
+    }
+
     override fun onMapReady(googleMap: GoogleMap) {
         this.googleMap = googleMap
 
         googleMap.setMaxZoomPreference(20.0f)
         googleMap.setMinZoomPreference(10.0f)
 
+    }
+
+    override fun onResume() {
+        super.onResume()
+        getCurrentLocation()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        fusedLocationProviderClient.removeLocationUpdates(locationCallback)
     }
 }
