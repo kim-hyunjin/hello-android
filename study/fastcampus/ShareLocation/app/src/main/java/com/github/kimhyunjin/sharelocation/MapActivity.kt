@@ -27,6 +27,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
@@ -37,7 +38,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.database
 
-class MapActivity : AppCompatActivity(), OnMapReadyCallback {
+class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
     private lateinit var binding: ActivityMapBinding
     private lateinit var googleMap: GoogleMap
@@ -59,6 +60,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
     private val markerMap = hashMapOf<String, Marker>()
+    private var trackingPersonId: String = ""
 
     private val locationCallback = object : LocationCallback() {
         override fun onLocationResult(locationResult: LocationResult) {
@@ -150,12 +152,24 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
                 override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
                     val person = snapshot.getValue(Person::class.java) ?: return
                     val uid = person.uid ?: return
+                    if (person.latitude == null || person.longitude == null) return
 
                     if (markerMap[uid] == null) {
                         markerMap[uid] = makeNewMarker(person, uid) ?: return
                     } else {
-                        if (person.latitude == null || person.longitude == null) return
                         markerMap[uid]?.position = LatLng(person.latitude!!, person.longitude!!)
+                    }
+
+                    if (uid == trackingPersonId) {
+                        googleMap.animateCamera(
+                            CameraUpdateFactory.newCameraPosition(
+                                CameraPosition.Builder()
+                                    .target(
+                                        LatLng(person.latitude!!, person.longitude!!)
+                                    ).zoom(16f)
+                                    .build()
+                            )
+                        )
                     }
                 }
 
@@ -183,6 +197,8 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
                 )
             ).title(person.name)
         ) ?: return null
+
+        marker.tag = uid
 
         Glide.with(this).asBitmap().load(person.profilePhoto)
             .transform(RoundedCorners(60))
@@ -224,6 +240,10 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
         googleMap.setMaxZoomPreference(20.0f)
         googleMap.setMinZoomPreference(10.0f)
 
+        googleMap.setOnMarkerClickListener(this)
+        googleMap.setOnMapClickListener {
+            trackingPersonId = ""
+        }
     }
 
     override fun onResume() {
@@ -234,5 +254,12 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onPause() {
         super.onPause()
         fusedLocationProviderClient.removeLocationUpdates(locationCallback)
+    }
+
+    override fun onMarkerClick(marker: Marker): Boolean {
+        val uid = marker.tag as? String ?: ""
+        trackingPersonId = uid
+
+        return false
     }
 }
