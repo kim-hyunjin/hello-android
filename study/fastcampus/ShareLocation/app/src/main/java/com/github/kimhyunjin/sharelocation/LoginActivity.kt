@@ -4,6 +4,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.github.kimhyunjin.sharelocation.databinding.ActivityLoginBinding
 import com.google.firebase.Firebase
@@ -19,6 +21,8 @@ import com.kakao.sdk.user.model.User
 
 class LoginActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginBinding
+    private lateinit var emailLoginResult: ActivityResultLauncher<Intent>
+    private var pendingUser: User? = null
     private val TAG = "kakao"
 
     // 카카오계정으로 로그인 공통 callback 구성
@@ -41,6 +45,21 @@ class LoginActivity : AppCompatActivity() {
 
         // Kakao SDK 초기화
         KakaoSdk.init(this, "1fee26e3619c1a35f974d497df14516f")
+
+        emailLoginResult =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+                if (it.resultCode == RESULT_OK) {
+                    val email = it.data?.getStringExtra("email")
+                    if (email == null) {
+                        showErrorToast()
+                        return@registerForActivityResult
+                    } else {
+                        if (pendingUser != null) {
+                            tryToSignInFirebase(pendingUser!!, email)
+                        }
+                    }
+                }
+            }
 
         binding.kakaoLoginButton.setOnClickListener {
 
@@ -99,6 +118,8 @@ class LoginActivity : AppCompatActivity() {
 
         if (kakaoEmail.isEmpty()) {
             // 추가로 이메일을 받는 작업
+            pendingUser = user
+            emailLoginResult.launch(Intent(this, EmailActivity::class.java))
             return
         }
 
