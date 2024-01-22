@@ -3,6 +3,7 @@
     <style name="Base.Theme.TomorrowHouse" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="colorOnPrimaryContainer">@color/white</item>
     </style>
 
     <style name="Theme.TomorrowHouse" parent="Base.Theme.TomorrowHouse" />
