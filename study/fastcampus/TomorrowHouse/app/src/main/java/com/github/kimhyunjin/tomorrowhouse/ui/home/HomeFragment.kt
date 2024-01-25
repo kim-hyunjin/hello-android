@@ -25,7 +25,9 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         setupWriteButton(view)
 
         val articleAdapter = HomeArticleAdapter {
-
+            it.articleId?.let { articleId ->
+                findNavController().navigate(HomeFragmentDirections.actionHomeFragmentToArticleFragment(articleId))
+            }
         }
 
         binding.homeRecyclerView.apply {
