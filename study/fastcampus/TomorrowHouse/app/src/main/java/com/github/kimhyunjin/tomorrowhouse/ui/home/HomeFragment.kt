@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.GridLayoutManager
 import com.github.kimhyunjin.tomorrowhouse.R
 import com.github.kimhyunjin.tomorrowhouse.data.ArticleModel
 import com.github.kimhyunjin.tomorrowhouse.databinding.FragmentHomeBinding
@@ -21,19 +22,24 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentHomeBinding.bind(view)
-
-        val db = Firebase.firestore
-
-        db.collection("articles").document("0EMAOwNU64UFcnTTEL2x").get()
-            .addOnSuccessListener { result ->
-                val article = result.toObject<ArticleModel>()
-                Log.i("homeFragment", article.toString())
-            }
-            .addOnFailureListener {
-                it.printStackTrace()
-            }
-
         setupWriteButton(view)
+
+        val articleAdapter = HomeArticleAdapter {
+
+        }
+
+        binding.homeRecyclerView.apply {
+            layoutManager = GridLayoutManager(context, 2)
+            adapter = articleAdapter
+        }
+
+        Firebase.firestore.collection("articles").get().addOnSuccessListener { result ->
+            val list = result.map {
+                it.toObject<ArticleModel>()
+            }
+            articleAdapter.submitList(list)
+        }
+
     }
 
     private fun setupWriteButton(view: View) {
