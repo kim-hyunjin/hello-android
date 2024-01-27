@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">StarBucks</string>
+    <string name="home">home</string>
+    <string name="order">order</string>
 </resources>
