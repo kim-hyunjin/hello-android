@@ -8,6 +8,8 @@ import android.view.View
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.isVisible
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.get
 import androidx.navigation.fragment.findNavController
 import com.github.kimhyunjin.tomorrowhouse.R
 import com.github.kimhyunjin.tomorrowhouse.data.ArticleModel
@@ -20,13 +22,10 @@ import java.util.UUID
 
 class WriteArticleFragment : Fragment(R.layout.fragment_write_article) {
     private lateinit var binding: FragmentWriteArticleBinding
-    private var selectedUri: Uri? = null
+    private lateinit var viewModel: WriteArticleViewModel
     val pickMedia = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         if (uri != null) {
-            binding.photoImageView.setImageURI(uri)
-            this.selectedUri = uri
-            binding.photoClearButton.isVisible = true
-            binding.photoAddButton.isVisible = false
+            viewModel.updateSelectedUri(uri)
         }
     }
 
@@ -34,7 +33,22 @@ class WriteArticleFragment : Fragment(R.layout.fragment_write_article) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentWriteArticleBinding.bind(view)
 
-        startImagePicker()
+        viewModel = ViewModelProvider(requireActivity()).get<WriteArticleViewModel>()
+        viewModel.selectedUri.observe(viewLifecycleOwner) {
+            binding.photoImageView.setImageURI(it)
+
+            if (it != null) {
+                binding.photoClearButton.isVisible = true
+                binding.photoAddButton.isVisible = false
+            } else {
+                binding.photoClearButton.isVisible = false
+                binding.photoAddButton.isVisible = true
+            }
+        }
+
+        if (viewModel.selectedUri.value == null) {
+            startImagePicker()
+        }
         setupPhotoImageView()
         setupBackButton()
         setupSubmitButton()
@@ -47,7 +61,7 @@ class WriteArticleFragment : Fragment(R.layout.fragment_write_article) {
 
     private fun setupPhotoImageView() {
         binding.photoImageView.setOnClickListener {
-            if (selectedUri == null) {
+            if (viewModel.selectedUri.value == null) {
                 startImagePicker()
             }
         }
@@ -63,8 +77,8 @@ class WriteArticleFragment : Fragment(R.layout.fragment_write_article) {
     private fun setupSubmitButton() {
         binding.submitButton.setOnClickListener {
             showProgress()
-            if (selectedUri != null) {
-                val photoUri = selectedUri ?: return@setOnClickListener
+            if (viewModel.selectedUri.value != null) {
+                val photoUri = viewModel.selectedUri.value ?: return@setOnClickListener
                 upload(photoUri)
             } else {
                 showSnackBar("이미지가 선택되지 않았습니다.")
@@ -142,10 +156,7 @@ class WriteArticleFragment : Fragment(R.layout.fragment_write_article) {
 
     private fun setupClearButton() {
         binding.photoClearButton.setOnClickListener {
-            selectedUri = null
-            binding.photoImageView.setImageURI(null)
-            binding.photoClearButton.isVisible = false
-            binding.photoAddButton.isVisible = true
+            viewModel.updateSelectedUri(null)
         }
     }
 
