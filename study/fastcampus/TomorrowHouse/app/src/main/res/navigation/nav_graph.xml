@@ -60,6 +60,10 @@
     <fragment
         android:id="@+id/bookmarkFragment"
         android:name="com.github.kimhyunjin.tomorrowhouse.bookmark.BookmarkFragment"
-        android:label="fragment_bookmark"
-        tools:layout="@layout/fragment_bookmark" />
+        android:label="북마크"
+        tools:layout="@layout/fragment_bookmark" >
+        <action
+            android:id="@+id/action_bookmarkFragment_to_articleFragment"
+            app:destination="@id/articleFragment" />
+    </fragment>
 </navigation>

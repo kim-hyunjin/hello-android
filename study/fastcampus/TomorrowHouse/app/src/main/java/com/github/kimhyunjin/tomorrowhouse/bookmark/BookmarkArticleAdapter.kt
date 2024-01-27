@@ -1,4 +1,4 @@
-package com.github.kimhyunjin.tomorrowhouse.ui.home
+package com.github.kimhyunjin.tomorrowhouse.bookmark
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -10,7 +10,7 @@ import com.github.kimhyunjin.tomorrowhouse.R
 import com.github.kimhyunjin.tomorrowhouse.data.ArticleItem
 import com.github.kimhyunjin.tomorrowhouse.databinding.ItemArticleBinding
 
-class HomeArticleAdapter(val onItemClicked: (ArticleItem) -> Unit, val onBookmarkClicked: (String, Boolean) -> Unit) : ListAdapter<ArticleItem, HomeArticleAdapter.ViewHolder>(diffUtil) {
+class BookmarkArticleAdapter(val onItemClicked: (ArticleItem) -> Unit) : ListAdapter<ArticleItem, BookmarkArticleAdapter.ViewHolder>(diffUtil) {
     inner class ViewHolder(private val binding: ItemArticleBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(articleItem: ArticleItem) {
@@ -22,15 +22,6 @@ class HomeArticleAdapter(val onItemClicked: (ArticleItem) -> Unit, val onBookmar
             }
             binding.descriptionTextView.text = articleItem.description
             changeBookmarkIcon(articleItem.isBookmark)
-
-
-            binding.bookmarkImageButton.setOnClickListener {
-                articleItem.articleId?.let {
-                    onBookmarkClicked.invoke(it, articleItem.isBookmark.not())
-                }
-                articleItem.isBookmark = articleItem.isBookmark.not()
-                changeBookmarkIcon(articleItem.isBookmark)
-            }
         }
 
         private fun changeBookmarkIcon(isBookmark: Boolean) {
