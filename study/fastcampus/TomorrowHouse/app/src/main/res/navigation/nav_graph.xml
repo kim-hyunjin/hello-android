@@ -25,6 +25,9 @@
         <action
             android:id="@+id/action_homeFragment_to_articleFragment"
             app:destination="@id/articleFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_bookmarkFragment"
+            app:destination="@id/bookmarkFragment" />
     </fragment>
     <fragment
         android:id="@+id/writeArticleFragment"
@@ -54,4 +57,9 @@
             android:name="articleId"
             app:argType="string" />
     </fragment>
+    <fragment
+        android:id="@+id/bookmarkFragment"
+        android:name="com.github.kimhyunjin.tomorrowhouse.bookmark.BookmarkFragment"
+        android:label="fragment_bookmark"
+        tools:layout="@layout/fragment_bookmark" />
 </navigation>

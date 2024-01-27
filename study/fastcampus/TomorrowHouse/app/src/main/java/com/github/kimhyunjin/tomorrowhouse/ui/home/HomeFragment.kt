@@ -18,22 +18,14 @@ import com.google.firebase.firestore.toObject
 class HomeFragment : Fragment(R.layout.fragment_home) {
 
     private lateinit var binding: FragmentHomeBinding
+    private lateinit var articleAdapter: HomeArticleAdapter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentHomeBinding.bind(view)
         setupWriteButton(view)
-
-        val articleAdapter = HomeArticleAdapter {
-            it.articleId?.let { articleId ->
-                findNavController().navigate(HomeFragmentDirections.actionHomeFragmentToArticleFragment(articleId))
-            }
-        }
-
-        binding.homeRecyclerView.apply {
-            layoutManager = GridLayoutManager(context, 2)
-            adapter = articleAdapter
-        }
+        setupBookmarkButton()
+        setupRecyclerView()
 
         Firebase.firestore.collection("articles").get().addOnSuccessListener { result ->
             val list = result.map {
@@ -42,6 +34,29 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             articleAdapter.submitList(list)
         }
 
+    }
+
+    private fun setupRecyclerView() {
+        articleAdapter = HomeArticleAdapter {
+            it.articleId?.let { articleId ->
+                findNavController().navigate(
+                    HomeFragmentDirections.actionHomeFragmentToArticleFragment(
+                        articleId
+                    )
+                )
+            }
+        }
+
+        binding.homeRecyclerView.apply {
+            layoutManager = GridLayoutManager(context, 2)
+            adapter = articleAdapter
+        }
+    }
+
+    private fun setupBookmarkButton() {
+        binding.bookmarkButton.setOnClickListener {
+            findNavController().navigate(HomeFragmentDirections.actionHomeFragmentToBookmarkFragment())
+        }
     }
 
     private fun setupWriteButton(view: View) {
