@@ -21,6 +21,14 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         initRecommendMenuList(homeData, menuData)
         initBanner(homeData)
         initFoodList(menuData)
+
+        binding.scrollView.setOnScrollChangeListener { v, scrollX, scrollY, oldScrollX, oldScrollY ->
+            if (scrollY == 0) {
+                binding.fab.extend()
+            } else {
+                binding.fab.shrink()
+            }
+        }
     }
 
     private fun initFoodList(menuData: Menu) {

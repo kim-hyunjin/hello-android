@@ -142,4 +142,16 @@
         </com.google.android.material.appbar.CollapsingToolbarLayout>
 
     </com.google.android.material.appbar.AppBarLayout>
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:layout_margin="20dp"
+        android:text="@string/delivery"
+        android:textColor="@color/white"
+        android:backgroundTint="#335B30"
+        app:icon="@drawable/baseline_bike_scooter_24"
+        app:iconTint="@color/white" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
