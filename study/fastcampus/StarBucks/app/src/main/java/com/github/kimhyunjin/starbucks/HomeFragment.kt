@@ -13,8 +13,47 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentHomeBinding.bind(view)
 
-        val homeData = context?.readData("home", Home::class.java) ?: return
+        val homeData = context?.readData("home.json", Home::class.java) ?: return
+        val menuData = context?.readData("menu.json", Menu::class.java) ?: return
 
+        initAppBar(homeData)
+        initRecommendMenuList(homeData, menuData)
+        initBanner(homeData)
+        initFoodList(menuData)
+    }
+
+    private fun initFoodList(menuData: Menu) {
+        binding.foodMenuList.tvTitle.text = getString(R.string.food_menu_title)
+        menuData.food.forEach { menuItem ->
+            binding.foodMenuList.menuLayout.addView(MenuView(context = requireContext()).apply {
+                setTitle(menuItem.name)
+                setImageUrl(menuItem.image)
+            })
+        }
+    }
+
+    private fun initBanner(homeData: Home) {
+        Glide.with(binding.bannerLayout.ivBanner).load(homeData.banner.image)
+            .into(binding.bannerLayout.ivBanner)
+        binding.bannerLayout.ivBanner.contentDescription = homeData.banner.contentDescription
+    }
+
+    private fun initRecommendMenuList(
+        homeData: Home,
+        menuData: Menu
+    ) {
+        binding.recommendMenuList.tvTitle.text =
+            getString(R.string.recommend_title, homeData.user.nickname)
+
+        menuData.coffee.forEach { menuItem ->
+            binding.recommendMenuList.menuLayout.addView(MenuView(context = requireContext()).apply {
+                setTitle(menuItem.name)
+                setImageUrl(menuItem.image)
+            })
+        }
+    }
+
+    private fun initAppBar(homeData: Home) {
         binding.appBarTitleTextView.text =
             getString(R.string.appbar_title_text, homeData.user.nickname)
         binding.startCountTextView.text =
@@ -22,18 +61,5 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         binding.appBarProgressBar.max = homeData.user.totalCount
         binding.appBarProgressBar.progress = homeData.user.starCount
         Glide.with(binding.appBarImageView).load(homeData.appbarImage).into(binding.appBarImageView)
-
-        val menuData = context?.readData("menu", Menu::class.java) ?: return
-        binding.recommendMenuList.tvTitle.text =
-            getString(R.string.title_menu_list, homeData.user.nickname)
-        menuData.coffee.forEach { menuItem ->
-            binding.recommendMenuList.menuLayout.addView(
-                MenuView(context = requireContext()).apply {
-                    setTitle(menuItem.name)
-                    setImageUrl(menuItem.image)
-                }
-            )
-        }
-
     }
 }
