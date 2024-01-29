@@ -4,16 +4,16 @@ import android.content.Context
 import com.google.gson.Gson
 import java.io.IOException
 
-fun Context.readData(): Home? {
+fun <T> Context.readData(filename: String, classT: Class<T>): T? {
     return try {
-        val inputStream = this.resources.assets.open("home.json")
+        val inputStream = this.resources.assets.open(filename)
 
         val buffer = ByteArray(inputStream.available())
         inputStream.read(buffer)
         inputStream.close()
 
         val gson = Gson()
-        gson.fromJson(String(buffer), Home::class.java)
+        gson.fromJson(String(buffer), classT)
     } catch (e: IOException) {
         null
     }

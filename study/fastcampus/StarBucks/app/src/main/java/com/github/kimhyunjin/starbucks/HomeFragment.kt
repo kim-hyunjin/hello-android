@@ -13,7 +13,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentHomeBinding.bind(view)
 
-        val homeData = context?.readData() ?: return
+        val homeData = context?.readData("home", Home::class.java) ?: return
 
         binding.appBarTitleTextView.text =
             getString(R.string.appbar_title_text, homeData.user.nickname)
@@ -23,11 +23,17 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         binding.appBarProgressBar.progress = homeData.user.starCount
         Glide.with(binding.appBarImageView).load(homeData.appbarImage).into(binding.appBarImageView)
 
-        binding.recommendMenuList.menuLayout.addView(
-            MenuView(context = requireContext()).apply {
-                setTitle("아이스 디카페인 카페라뗴")
-                setImageUrl("https://picsum.photos/100/100")
-            }
-        )
+        val menuData = context?.readData("menu", Menu::class.java) ?: return
+        binding.recommendMenuList.tvTitle.text =
+            getString(R.string.title_menu_list, homeData.user.nickname)
+        menuData.coffee.forEach { menuItem ->
+            binding.recommendMenuList.menuLayout.addView(
+                MenuView(context = requireContext()).apply {
+                    setTitle(menuItem.name)
+                    setImageUrl(menuItem.image)
+                }
+            )
+        }
+
     }
 }
