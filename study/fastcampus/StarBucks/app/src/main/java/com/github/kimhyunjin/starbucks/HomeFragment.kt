@@ -1,5 +1,6 @@
 package com.github.kimhyunjin.starbucks
 
+import android.animation.ValueAnimator
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
@@ -58,8 +59,15 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             getString(R.string.appbar_title_text, homeData.user.nickname)
         binding.startCountTextView.text =
             getString(R.string.appbar_star_title, homeData.user.starCount, homeData.user.totalCount)
-        binding.appBarProgressBar.max = homeData.user.totalCount
-        binding.appBarProgressBar.progress = homeData.user.starCount
         Glide.with(binding.appBarImageView).load(homeData.appbarImage).into(binding.appBarImageView)
+
+        binding.appBarProgressBar.max = homeData.user.totalCount
+        ValueAnimator.ofInt(0, homeData.user.starCount).apply {
+            duration = 1000
+            addUpdateListener {
+                binding.appBarProgressBar.progress = it.animatedValue as Int
+            }
+            start()
+        }
     }
 }
