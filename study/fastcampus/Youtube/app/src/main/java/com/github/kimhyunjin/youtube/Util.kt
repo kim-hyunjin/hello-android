@@ -12,7 +12,7 @@ fun <T> Context.readData(fileName: String, classT: Class<T>): T? {
         inputStream.close()
 
         val gson = Gson()
-        gson.fromJson(inputStream.toString(), classT)
+        gson.fromJson(String(byteArray), classT)
     } catch (e: IOException) {
         null
     }

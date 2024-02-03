@@ -15,5 +15,6 @@ data class VideoItem(
     val viewCount: String,
     val dateText: String,
     val channelThumb: String,
+    @SerializedName("thumb")
     val videoThumb: String,
 )

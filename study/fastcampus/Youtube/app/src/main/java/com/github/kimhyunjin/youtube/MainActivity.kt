@@ -2,6 +2,7 @@ package com.github.kimhyunjin.youtube
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.github.kimhyunjin.youtube.databinding.ActivityMainBinding
 
@@ -11,16 +12,23 @@ class MainActivity : AppCompatActivity() {
         ActivityMainBinding.inflate(layoutInflater)
     }
 
-    private lateinit var adapter: VideoAdapter
+    private val videoList: VideoList by lazy {
+        readData("video.json", VideoList::class.java) ?: VideoList(emptyList())
+    }
+
+    private lateinit var videoAdapter: VideoAdapter
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        adapter = VideoAdapter()
+        videoAdapter = VideoAdapter(context = this)
 
         binding.videoListRecyclerView.apply {
             layoutManager = LinearLayoutManager(context)
-            adapter = adapter
+            adapter = videoAdapter
         }
+
+        Log.i("videos", videoList.videos.toString())
+        videoAdapter.submitList(videoList.videos)
     }
 }

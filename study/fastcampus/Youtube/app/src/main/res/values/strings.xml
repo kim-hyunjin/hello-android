@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Youtube</string>
+    <string name="subtitle_video_info">%s . 조회수 %s . %s</string>
 </resources>
