@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.github.kimhyunjin.youtube.databinding.ItemVideoBinding
 
-class VideoAdapter(private val context: Context) :
+class VideoAdapter(private val context: Context, private val onClick: (VideoItem) -> Unit) :
     ListAdapter<VideoItem, VideoAdapter.ViewHolder>(diffUtil) {
 
     inner class ViewHolder(private val binding: ItemVideoBinding) :
@@ -28,6 +28,10 @@ class VideoAdapter(private val context: Context) :
             Glide.with(binding.channelLogoImageView).load(item.channelThumb)
                 .circleCrop()
                 .into(binding.channelLogoImageView)
+
+            binding.root.setOnClickListener {
+                onClick(item)
+            }
         }
     }
 
