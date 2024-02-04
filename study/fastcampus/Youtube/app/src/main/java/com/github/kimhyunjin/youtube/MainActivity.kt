@@ -24,15 +24,20 @@ class MainActivity : AppCompatActivity() {
     private var player: ExoPlayer? = null
 
     private lateinit var videoAdapter: VideoAdapter
+    private lateinit var playerVideoAdapter: PlayerVideoAdapter
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
         initMotionLayout()
         initVideoRecyclerView()
-
+        initVideoPlayerRecyclerView()
         initControlButton()
+
+        Log.i("videos", videoList.videos.toString())
+        videoAdapter.submitList(videoList.videos)
     }
+
 
     private fun initControlButton() {
         binding.controlButton.setOnClickListener {
@@ -56,6 +61,9 @@ class MainActivity : AppCompatActivity() {
             binding.motionLayout.setTransition(R.id.collapse, R.id.expand)
             binding.motionLayout.transitionToEnd()
 
+            val list = listOf(videoItem) + videoList.videos.filter { it.id != videoItem.id }
+            playerVideoAdapter.submitList(list)
+
             play(videoItem)
         }
 
@@ -63,9 +71,20 @@ class MainActivity : AppCompatActivity() {
             layoutManager = LinearLayoutManager(context)
             adapter = videoAdapter
         }
+    }
 
-        Log.i("videos", videoList.videos.toString())
-        videoAdapter.submitList(videoList.videos)
+    private fun initVideoPlayerRecyclerView() {
+        playerVideoAdapter = PlayerVideoAdapter(context = this) { videoItem ->
+            val list = listOf(videoItem) + videoList.videos.filter { it.id != videoItem.id }
+            playerVideoAdapter.submitList(list)
+
+            play(videoItem)
+        }
+
+        binding.playerRecyclerView.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = playerVideoAdapter
+        }
     }
 
     private fun initMotionLayout() {
