@@ -1,5 +1,6 @@
 package com.github.kimhyunjin.youtube
 
+import com.github.kimhyunjin.youtube.player.PlayerVideo
 import com.google.gson.annotations.SerializedName
 
 data class VideoList(
@@ -18,3 +19,16 @@ data class VideoItem(
     @SerializedName("thumb")
     val videoThumb: String,
 )
+
+fun VideoItem.transform(): PlayerVideo {
+    return PlayerVideo(
+        id = id,
+        title = title,
+        videoUrl = videoUrl,
+        channelName = channelName,
+        viewCount = viewCount,
+        dateText = dateText,
+        channelThumb = channelThumb,
+        videoThumb = videoThumb
+    )
+}
