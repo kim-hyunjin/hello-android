@@ -32,6 +32,8 @@ class MainActivity : AppCompatActivity() {
 
             play(videoItem)
         }
+
+        binding.motionLayout.targetView = binding.videoPlayerContainer
         binding.motionLayout.jumpToState(R.id.collapse)
 
         binding.videoListRecyclerView.apply {
