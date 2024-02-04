@@ -76,14 +76,17 @@ class MainActivity : AppCompatActivity() {
     private fun initVideoPlayerRecyclerView() {
         playerVideoAdapter = PlayerVideoAdapter(context = this) { videoItem ->
             val list = listOf(videoItem) + videoList.videos.filter { it.id != videoItem.id }
-            playerVideoAdapter.submitList(list)
-
+            playerVideoAdapter.submitList(list) {
+                // 목록 수정 뒤 영상 상세 정보 헤더로 포지션 초기화
+                binding.playerRecyclerView.scrollToPosition(0)
+            }
             play(videoItem)
         }
 
         binding.playerRecyclerView.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = playerVideoAdapter
+            itemAnimator = null // 아이템 재정렬 시 깜빡임 없애기 위해 설정
         }
     }
 
