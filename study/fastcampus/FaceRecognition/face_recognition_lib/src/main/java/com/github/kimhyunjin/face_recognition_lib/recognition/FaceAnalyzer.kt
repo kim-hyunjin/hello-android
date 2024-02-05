@@ -1,6 +1,9 @@
 package com.github.kimhyunjin.face_recognition_lib.recognition
 
+import android.graphics.PointF
+import android.graphics.RectF
 import android.media.Image
+import android.util.SizeF
 import androidx.annotation.OptIn
 import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageAnalysis
@@ -13,6 +16,7 @@ import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.face.Face
 import com.google.mlkit.vision.face.FaceDetection
 import com.google.mlkit.vision.face.FaceDetectorOptions
+import kotlin.math.abs
 
 internal class FaceAnalyzer(
     lifecycle: Lifecycle,
@@ -22,6 +26,12 @@ internal class FaceAnalyzer(
 
     private var widthScaleFactor = 1f
     private var heightScaleFactor = 1f
+
+    // image 좌우 반전에 사용
+    private var preCenterX = 0f
+    private var preCenterY = 0f
+    private var preWidth = 0f
+    private var preHeight = 0f
 
     private val options = FaceDetectorOptions.Builder()
         .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_ACCURATE)
@@ -54,12 +64,15 @@ internal class FaceAnalyzer(
             ) {
                 detectStatus = FaceAnalyzerStatus.RightWink
                 listener?.detectProgress(75f, "활짝 웃어보세요.")
-            } else if (detectStatus == FaceAnalyzerStatus.RightWink && (face.smilingProbability ?: 0f) > SMILE_SUCCESS_VALUE) {
+            } else if (detectStatus == FaceAnalyzerStatus.RightWink && (face.smilingProbability
+                    ?: 0f) > SMILE_SUCCESS_VALUE
+            ) {
                 detectStatus = FaceAnalyzerStatus.Smile
                 listener?.detectProgress(100f, "얼굴 인식이 완료되었습니다.")
                 listener?.stopDetect()
                 detector.close()
             }
+            calculateDetectSize(face)
             // 중간단계에서 얼굴인식 실패시 처음단계로 돌아간다.
         } else if (detectStatus != FaceAnalyzerStatus.UnDetect && detectStatus != FaceAnalyzerStatus.Smile) {
             detectStatus = FaceAnalyzerStatus.UnDetect
@@ -94,8 +107,49 @@ internal class FaceAnalyzer(
             }
     }
 
+    /**
+     * 얼굴 사이즈 계산, 좌우 반전하여 activity에게 전달
+     */
+    private fun calculateDetectSize(face: Face) {
+        val rect = face.boundingBox
+        val boxWidth = rect.right - rect.left
+        val boxHeight = rect.bottom - rect.top
+
+        val left = rect.right.translateX() - (boxWidth / 2)
+        val right = rect.left.translateX() + (boxWidth / 2)
+        val top = rect.top.translateY() - (boxHeight / 2)
+        val bottom = rect.bottom.translateY()
+
+        val width = right - left
+        val height = bottom - top
+        val centerX = left + width / 2
+        val centerY = top + height / 2
+
+        if (abs(preCenterX - centerX) > PIVOT_OFFSET || abs(preCenterY - centerY) > PIVOT_OFFSET || abs(
+                preWidth - width
+            ) > SIZE_OFFSET || abs(preHeight - height) > SIZE_OFFSET
+        ) {
+            listener?.faceSize(
+                RectF(left, top, right, bottom),
+                SizeF(width, height),
+                PointF(centerX, centerY)
+            )
+
+            preCenterX = centerX
+            preCenterY = centerY
+            preWidth = width
+            preHeight = height
+        }
+    }
+
+    private fun Int.translateX() = previewView.width - (toFloat() * widthScaleFactor)
+    private fun Int.translateY() = toFloat() * heightScaleFactor
+
     companion object {
         private const val EYE_SUCCESS_VALUE = 0.1f
         private const val SMILE_SUCCESS_VALUE = 0.8f
+
+        private const val PIVOT_OFFSET = 15
+        private const val SIZE_OFFSET = 30
     }
 }
