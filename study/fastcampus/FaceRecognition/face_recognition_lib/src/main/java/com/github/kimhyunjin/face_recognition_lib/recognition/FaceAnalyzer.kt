@@ -3,6 +3,7 @@ package com.github.kimhyunjin.face_recognition_lib.recognition
 import android.graphics.PointF
 import android.graphics.RectF
 import android.media.Image
+import android.util.Log
 import android.util.SizeF
 import androidx.annotation.OptIn
 import androidx.camera.core.ExperimentalGetImage
@@ -115,26 +116,33 @@ internal class FaceAnalyzer(
         val boxWidth = rect.right - rect.left
         val boxHeight = rect.bottom - rect.top
 
+        // 얼굴의 왼쪽이 화면상에서는 오른쪽에 있어서 왼쪽의 숫자가 더 큼
+        // 따라서 아래의 계산을 통해 좌우를 반전
         val left = rect.right.translateX() - (boxWidth / 2)
-        val right = rect.left.translateX() + (boxWidth / 2)
         val top = rect.top.translateY() - (boxHeight / 2)
+        val right = rect.left.translateX() + (boxWidth / 2)
         val bottom = rect.bottom.translateY()
+//        val left = rect.left.toFloat()
+//        val right = rect.right.toFloat()
+//        val top = rect.top.toFloat()
+//        val bottom = rect.bottom.toFloat()
+//        Log.i("size", "left ${left}, top ${top}, right ${right}, bottom ${bottom}")
 
         val width = right - left
         val height = bottom - top
         val centerX = left + width / 2
         val centerY = top + height / 2
 
-        if (abs(preCenterX - centerX) > PIVOT_OFFSET || abs(preCenterY - centerY) > PIVOT_OFFSET || abs(
-                preWidth - width
-            ) > SIZE_OFFSET || abs(preHeight - height) > SIZE_OFFSET
+        if (abs(preCenterX - centerX) > PIVOT_OFFSET
+            || abs(preCenterY - centerY) > PIVOT_OFFSET
+            || abs(preWidth - width) > SIZE_OFFSET
+            || abs(preHeight - height) > SIZE_OFFSET
         ) {
             listener?.faceSize(
                 RectF(left, top, right, bottom),
                 SizeF(width, height),
                 PointF(centerX, centerY)
             )
-
             preCenterX = centerX
             preCenterY = centerY
             preWidth = width
