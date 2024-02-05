@@ -41,12 +41,12 @@ dependencies {
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
 
-    val camera_version = "1.3.1"
-    implementation("androidx.camera:camera-core:${camera_version}")
-    implementation("androidx.camera:camera-camera2:${camera_version}")
-    implementation("androidx.camera:camera-lifecycle:${camera_version}")
-    implementation("androidx.camera:camera-view:${camera_version}")
-    implementation("androidx.camera:camera-extensions:${camera_version}")
+    val cameraVersion = "1.3.1"
+    implementation("androidx.camera:camera-core:${cameraVersion}")
+    implementation("androidx.camera:camera-camera2:${cameraVersion}")
+    implementation("androidx.camera:camera-lifecycle:${cameraVersion}")
+    implementation("androidx.camera:camera-view:${cameraVersion}")
+    implementation("androidx.camera:camera-extensions:${cameraVersion}")
 
     implementation("com.google.mlkit:face-detection:16.1.5")
 

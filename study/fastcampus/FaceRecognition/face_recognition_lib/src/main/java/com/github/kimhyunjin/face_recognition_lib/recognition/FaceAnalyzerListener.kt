@@ -11,7 +11,7 @@ interface FaceAnalyzerListener {
     fun detect()
 
     /**
-     * 얼굴 인식 중단
+     * 얼굴 인식 종료
      */
     fun stopDetect()
 

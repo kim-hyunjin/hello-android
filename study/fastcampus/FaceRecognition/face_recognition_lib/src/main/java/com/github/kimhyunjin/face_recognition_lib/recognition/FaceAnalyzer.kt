@@ -32,9 +32,49 @@ internal class FaceAnalyzer(
 
     private val detector = FaceDetection.getClient(options)
 
-    private val successListener = OnSuccessListener<List<Face>> { faces -> }
+    private var detectStatus = FaceAnalyzerStatus.UnDetect
 
-    private val failureListener = OnFailureListener { e -> }
+    private val successListener = OnSuccessListener<List<Face>> { faces ->
+        val face = faces.firstOrNull()
+        // 얼굴 인식 -> 왼쪽 윙크 -> 오른쪽 윙크 -> 스마일 -> 종료
+        if (face != null) {
+            if (detectStatus == FaceAnalyzerStatus.UnDetect) {
+                detectStatus = FaceAnalyzerStatus.Detect
+                listener?.detect()
+                listener?.detectProgress(25f, "얼굴을 인식했습니다. \n왼쪽 눈만 깜빡여주세요.")
+            } else if (detectStatus == FaceAnalyzerStatus.Detect && (face.leftEyeOpenProbability
+                    ?: 0f) > EYE_SUCCESS_VALUE && (face.rightEyeOpenProbability
+                    ?: 0f) < EYE_SUCCESS_VALUE
+            ) {
+                detectStatus = FaceAnalyzerStatus.LeftWink
+                listener?.detectProgress(50f, "오른쪽 눈만 깜빡여주세요.")
+            } else if (detectStatus == FaceAnalyzerStatus.LeftWink && (face.rightEyeOpenProbability
+                    ?: 0f) > EYE_SUCCESS_VALUE && (face.leftEyeOpenProbability
+                    ?: 0f) < EYE_SUCCESS_VALUE
+            ) {
+                detectStatus = FaceAnalyzerStatus.RightWink
+                listener?.detectProgress(75f, "활짝 웃어보세요.")
+            } else if (detectStatus == FaceAnalyzerStatus.RightWink && (face.smilingProbability ?: 0f) > SMILE_SUCCESS_VALUE) {
+                detectStatus = FaceAnalyzerStatus.Smile
+                listener?.detectProgress(100f, "얼굴 인식이 완료되었습니다.")
+                listener?.stopDetect()
+                detector.close()
+            }
+            // 중간단계에서 얼굴인식 실패시 처음단계로 돌아간다.
+        } else if (detectStatus != FaceAnalyzerStatus.UnDetect && detectStatus != FaceAnalyzerStatus.Smile) {
+            detectStatus = FaceAnalyzerStatus.UnDetect
+            listener?.notDetect()
+            listener?.detectProgress(0f, "얼굴을 인식하지 못했습니다. \n처음 단계로 돌아갑니다.")
+        }
+    }
+
+    private val failureListener = OnFailureListener { e ->
+        detectStatus = FaceAnalyzerStatus.UnDetect
+    }
+
+    init {
+        lifecycle.addObserver(detector)
+    }
 
     override fun analyze(image: ImageProxy) {
         widthScaleFactor = previewView.width.toFloat() / image.width
@@ -52,5 +92,10 @@ internal class FaceAnalyzer(
             .addOnFailureListener(failureListener).addOnCompleteListener {
                 imageProxy.close()
             }
+    }
+
+    companion object {
+        private const val EYE_SUCCESS_VALUE = 0.1f
+        private const val SMILE_SUCCESS_VALUE = 0.8f
     }
 }
