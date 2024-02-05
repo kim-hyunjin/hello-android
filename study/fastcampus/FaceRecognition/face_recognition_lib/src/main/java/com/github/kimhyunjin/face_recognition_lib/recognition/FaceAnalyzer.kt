@@ -49,24 +49,28 @@ internal class FaceAnalyzer(
         val face = faces.firstOrNull()
         // 얼굴 인식 -> 왼쪽 윙크 -> 오른쪽 윙크 -> 스마일 -> 종료
         if (face != null) {
+            // 전면 카메라라 좌우가 반전되어 있어서
+            // 왼쪽 눈을 감으면 rightEyeOpenProbability 가 낮게 나옴
+            // 오른쪽 눈을 감으면 leftEyeOpenProbability 가 낮게 나옴
+            // Log.i("Probability", "left ${face.leftEyeOpenProbability} / right ${face.rightEyeOpenProbability}")
             if (detectStatus == FaceAnalyzerStatus.UnDetect) {
                 detectStatus = FaceAnalyzerStatus.Detect
                 listener?.detect()
                 listener?.detectProgress(25f, "얼굴을 인식했습니다. \n왼쪽 눈만 깜빡여주세요.")
-            } else if (detectStatus == FaceAnalyzerStatus.Detect && (face.leftEyeOpenProbability
-                    ?: 0f) > EYE_SUCCESS_VALUE && (face.rightEyeOpenProbability
-                    ?: 0f) < EYE_SUCCESS_VALUE
+            } else if (detectStatus == FaceAnalyzerStatus.Detect
+                && (face.leftEyeOpenProbability ?: 0f) > EYE_SUCCESS_VALUE
+                && (face.rightEyeOpenProbability ?: 0f) < EYE_SUCCESS_VALUE
             ) {
                 detectStatus = FaceAnalyzerStatus.LeftWink
                 listener?.detectProgress(50f, "오른쪽 눈만 깜빡여주세요.")
-            } else if (detectStatus == FaceAnalyzerStatus.LeftWink && (face.rightEyeOpenProbability
-                    ?: 0f) > EYE_SUCCESS_VALUE && (face.leftEyeOpenProbability
-                    ?: 0f) < EYE_SUCCESS_VALUE
+            } else if (detectStatus == FaceAnalyzerStatus.LeftWink
+                && (face.leftEyeOpenProbability ?: 0f) < EYE_SUCCESS_VALUE
+                && (face.rightEyeOpenProbability ?: 0f) > EYE_SUCCESS_VALUE
             ) {
                 detectStatus = FaceAnalyzerStatus.RightWink
                 listener?.detectProgress(75f, "활짝 웃어보세요.")
-            } else if (detectStatus == FaceAnalyzerStatus.RightWink && (face.smilingProbability
-                    ?: 0f) > SMILE_SUCCESS_VALUE
+            } else if (detectStatus == FaceAnalyzerStatus.RightWink
+                && (face.smilingProbability ?: 0f) > SMILE_SUCCESS_VALUE
             ) {
                 detectStatus = FaceAnalyzerStatus.Smile
                 listener?.detectProgress(100f, "얼굴 인식이 완료되었습니다.")
