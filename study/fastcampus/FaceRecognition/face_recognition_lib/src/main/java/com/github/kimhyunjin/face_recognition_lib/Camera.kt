@@ -17,7 +17,7 @@ import com.google.common.util.concurrent.ListenableFuture
 import java.lang.Exception
 import java.util.concurrent.Executors
 
-class Camera(private val context: Context): ActivityCompat.OnRequestPermissionsResultCallback {
+class Camera(private val context: Context) : ActivityCompat.OnRequestPermissionsResultCallback {
 
     private val preview: Preview by lazy {
         Preview.Builder()
@@ -54,7 +54,9 @@ class Camera(private val context: Context): ActivityCompat.OnRequestPermissionsR
 
     private fun openPreview() {
         cameraProviderFuture = ProcessCameraProvider.getInstance(context).also { providerFuture ->
-            providerFuture.addListener({}, ContextCompat.getMainExecutor(context))
+            providerFuture.addListener({
+                startPreview(context)
+            }, ContextCompat.getMainExecutor(context))
         }
     }
 
