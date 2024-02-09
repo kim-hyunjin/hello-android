@@ -13,6 +13,9 @@
         android:theme="@style/Theme.SecurityKeypad"
         tools:targetApi="31">
         <activity
+            android:name=".IdentityInputActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
@@ -21,7 +24,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.github.kimhyunjin.securitykeypad.PinActivity" />
+        <activity android:name=".PinActivity" />
     </application>
 
 </manifest>

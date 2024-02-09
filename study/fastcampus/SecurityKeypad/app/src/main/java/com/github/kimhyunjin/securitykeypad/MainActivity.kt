@@ -20,7 +20,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun openVerifyOTP() {
-
+        startActivity(Intent(this, IdentityInputActivity::class.java))
     }
 
 }
