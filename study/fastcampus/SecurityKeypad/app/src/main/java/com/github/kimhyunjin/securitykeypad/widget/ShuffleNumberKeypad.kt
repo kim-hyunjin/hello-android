@@ -3,6 +3,7 @@ package com.github.kimhyunjin.securitykeypad.widget
 import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.GridLayout
 import android.widget.TextView
 import androidx.core.view.children
@@ -10,18 +11,20 @@ import com.github.kimhyunjin.securitykeypad.databinding.WidgetShuffleNumberKeypa
 import kotlin.random.Random
 
 class ShuffleNumberKeypad @JvmOverloads constructor(
-    context: Context,
-    attributeSet: AttributeSet? = null,
-    defStyleAttr: Int = 0
-) : GridLayout(context, attributeSet, defStyleAttr) {
+    context: Context, attributeSet: AttributeSet? = null, defStyleAttr: Int = 0
+) : GridLayout(context, attributeSet, defStyleAttr), View.OnClickListener {
 
     private var _binding: WidgetShuffleNumberKeypadBinding? = null
 
     private val binding get() = _binding!!
 
+    private var listener: KeypadListener? = null
+
     init {
         _binding =
             WidgetShuffleNumberKeypadBinding.inflate(LayoutInflater.from(context), this, true)
+        binding.view = this
+        binding.clickListener = this
         shuffle()
     }
 
@@ -29,6 +32,18 @@ class ShuffleNumberKeypad @JvmOverloads constructor(
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
         _binding = null
+    }
+
+    fun setKeypadListener(listener: KeypadListener) {
+        this.listener = listener
+    }
+
+    fun onClickDelete() {
+        listener?.onClickDelete()
+    }
+
+    fun onClickDone() {
+        listener?.onClickDone()
     }
 
     private fun shuffle() {
@@ -43,6 +58,18 @@ class ShuffleNumberKeypad @JvmOverloads constructor(
                 view.text = numberArr[randIndex]
                 numberArr.removeAt(randIndex)
             }
+        }
+    }
+
+    interface KeypadListener {
+        fun onClickNum(num: String)
+        fun onClickDelete()
+        fun onClickDone()
+    }
+
+    override fun onClick(v: View) {
+        if (v is TextView && v.tag != null) {
+            listener?.onClickNum(v.text.toString())
         }
     }
 }
