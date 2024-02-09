@@ -34,6 +34,12 @@ class ShuffleNumberKeypad @JvmOverloads constructor(
         _binding = null
     }
 
+    override fun onClick(v: View) {
+        if (v is TextView && v.tag != null) {
+            listener?.onClickNum(v.text.toString())
+        }
+    }
+
     fun setKeypadListener(listener: KeypadListener) {
         this.listener = listener
     }
@@ -67,9 +73,5 @@ class ShuffleNumberKeypad @JvmOverloads constructor(
         fun onClickDone()
     }
 
-    override fun onClick(v: View) {
-        if (v is TextView && v.tag != null) {
-            listener?.onClickNum(v.text.toString())
-        }
-    }
+
 }
