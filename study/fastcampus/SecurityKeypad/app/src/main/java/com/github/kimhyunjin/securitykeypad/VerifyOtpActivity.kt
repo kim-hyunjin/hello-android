@@ -9,10 +9,12 @@ import androidx.core.widget.doAfterTextChanged
 import com.github.kimhyunjin.securitykeypad.databinding.ActivityVerifyOtpBinding
 import com.github.kimhyunjin.securitykeypad.util.ViewUtil.setEditorActionListener
 import com.github.kimhyunjin.securitykeypad.util.ViewUtil.showKeyboardDelay
+import com.google.android.gms.auth.api.phone.SmsRetriever
 
-class VerifyOtpActivity : AppCompatActivity() {
+class VerifyOtpActivity : AppCompatActivity(), AuthOtpReceiver.OtpReceiveListener {
 
     private lateinit var binding: ActivityVerifyOtpBinding
+    private var smsReceiver: AuthOtpReceiver? = null
 
     private var timer: CountDownTimer? = object : CountDownTimer(3 * 60 * 1000, 1000) {
         override fun onTick(p0: Long) {
@@ -39,10 +41,12 @@ class VerifyOtpActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         binding.otpCodeEdit.showKeyboardDelay()
+        startSmsReceiver()
     }
 
     override fun onDestroy() {
         clearTimer()
+        stopSmsReceiver()
         super.onDestroy()
     }
 
@@ -52,6 +56,7 @@ class VerifyOtpActivity : AppCompatActivity() {
             otpCodeEdit.doAfterTextChanged {
                 if (otpCodeEdit.length() >= 6) {
                     stopTimer()
+                    Toast.makeText(this@VerifyOtpActivity, "인증번호 입력 완료", Toast.LENGTH_SHORT).show()
                 }
             }
 
@@ -73,4 +78,33 @@ class VerifyOtpActivity : AppCompatActivity() {
         stopTimer()
         timer = null
     }
+
+    private fun startSmsReceiver() {
+        SmsRetriever.getClient(this).startSmsRetriever().also { task ->
+            task.addOnSuccessListener {
+                if (smsReceiver == null) {
+                    smsReceiver = AuthOtpReceiver().apply {
+                        setOtpListener(this@VerifyOtpActivity)
+                    }
+                }
+                registerReceiver(smsReceiver, smsReceiver!!.doFilter())
+            }
+
+            task.addOnFailureListener {
+                stopSmsReceiver()
+            }
+        }
+    }
+
+    private fun stopSmsReceiver() {
+        if (smsReceiver != null) {
+            unregisterReceiver(smsReceiver)
+            smsReceiver = null
+        }
+    }
+
+    override fun onOtpReceive(otp: String) {
+        binding.otpCodeEdit.setText(otp)
+    }
+
 }
