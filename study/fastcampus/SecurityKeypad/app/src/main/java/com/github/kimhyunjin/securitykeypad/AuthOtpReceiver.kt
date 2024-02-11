@@ -12,6 +12,9 @@ import com.google.android.gms.common.api.Status
  * 문자내용은 140바이트를 초과해선 안된다.
  * 문자 맨 앞에 <#> 이 포함되어야 한다.
  * 맨 마지막에 앱을 식별하는 11글자 해시코드가 필요하다.
+ *
+ * #Example:
+ * <#> [Sample] 본인인증번호 [123456] hashcode123
  */
 class AuthOtpReceiver : BroadcastReceiver() {
 
