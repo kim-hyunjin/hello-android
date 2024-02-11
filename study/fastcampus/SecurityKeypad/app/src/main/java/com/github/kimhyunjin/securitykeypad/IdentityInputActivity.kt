@@ -1,5 +1,6 @@
 package com.github.kimhyunjin.securitykeypad
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.inputmethod.EditorInfo
 import androidx.appcompat.app.AppCompatActivity
@@ -124,6 +125,8 @@ class IdentityInputActivity : AppCompatActivity() {
             binding.phoneLayout.error = "전화번호 형식이 다릅니다."
             return
         }
+
+        startActivity(Intent(this, VerifyOtpActivity::class.java))
     }
 
     private fun validName() = !binding.nameEdit.text.isNullOrBlank() && REGEX_NAME.toRegex()
