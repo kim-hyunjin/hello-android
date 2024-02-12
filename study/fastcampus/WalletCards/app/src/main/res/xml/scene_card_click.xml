@@ -122,6 +122,7 @@
 
     <ConstraintSet android:id="@+id/start" />
 
+    <!-- 카드를 한번 펼쳐주는 동작 -->
     <ConstraintSet android:id="@+id/fanOut">
 
         <Constraint android:id="@+id/thirdCard">
