@@ -2,10 +2,13 @@ package com.github.kimhyunjin.walletcards
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import android.view.View.OnClickListener
 import androidx.annotation.IdRes
 import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.constraintlayout.motion.widget.TransitionAdapter
+import androidx.core.app.ActivityOptionsCompat
+import androidx.core.util.Pair
 import com.github.kimhyunjin.walletcards.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -35,7 +38,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 R.id.thirdCardOnTop -> {
                     if (R.id.thirdCardOnTop == endStateId) {
-
+                        openDetail(thirdCard, thirdCardTitleTextView.text)
                     } else {
                         root.setTransition(R.id.thirdCardOnTop, endStateId)
                         root.transitionToEnd()
@@ -43,7 +46,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 R.id.secondCardOnTop -> {
                     if (R.id.secondCardOnTop == endStateId) {
-
+                        openDetail(secondCard, secondCardTitleTextView.text)
                     } else {
                         root.setTransition(R.id.secondCardOnTop, endStateId)
                         root.transitionToEnd()
@@ -51,7 +54,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 R.id.firstCardOnTop -> {
                     if (R.id.firstCardOnTop == endStateId) {
-
+                        openDetail(firstCard, firstCardTitleTextView.text)
                     } else {
                         root.setTransition(R.id.firstCardOnTop, endStateId)
                         root.transitionToEnd()
@@ -73,5 +76,11 @@ class MainActivity : AppCompatActivity() {
                 }
             })
         }
+    }
+
+    private fun openDetail(view: View, cardName: CharSequence) {
+        view.transitionName = "card"
+        val optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(this, Pair(view, view.transitionName))
+        DetailActivity.start(this, cardName.toString(), view.backgroundTintList, optionsCompat)
     }
 }
