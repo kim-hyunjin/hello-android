@@ -15,6 +15,9 @@
         android:theme="@style/Theme.ArchitecturePattern"
         tools:targetApi="31">
         <activity
+            android:name=".mvvm.MvvmActivity"
+            android:exported="false" />
+        <activity
             android:name=".mvp.MvpActivity"
             android:exported="false" />
         <activity
