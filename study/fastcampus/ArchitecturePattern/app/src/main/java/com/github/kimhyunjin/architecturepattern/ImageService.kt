@@ -5,6 +5,6 @@ import retrofit2.http.GET
 
 interface ImageService {
 
-    @GET("")
-    fun getRandomImage(): Call<ImageResponse>
+    @GET("v2/list")
+    fun getRandomImage(): Call<List<ImageResponse>>
 }

@@ -23,7 +23,7 @@ object RetrofitManager {
 
 
     private val retrofit = Retrofit.Builder()
-        .baseUrl("https://picsum.photos/seed/picsum/info")
+        .baseUrl("https://picsum.photos/")
         .addConverterFactory(GsonConverterFactory.create(gson))
         .client(okHttpClient)
         .build()
