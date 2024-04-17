@@ -1,4 +1,4 @@
-package com.github.kimhyunjin.myapplication.provider
+package com.github.kimhyunjin.mycontentprovider.provider
 
 import android.content.ContentProvider
 import android.content.ContentUris
@@ -8,14 +8,14 @@ import android.database.Cursor
 import android.database.SQLException
 import android.database.sqlite.SQLiteDatabase
 import android.net.Uri
-import com.github.kimhyunjin.myapplication.db.DatabaseHelper
-import com.github.kimhyunjin.myapplication.db.PersonContract.PersonEntry.TABLE_NAME
+import com.github.kimhyunjin.mycontentprovider.db.DatabaseHelper
+import com.github.kimhyunjin.mycontentprovider.db.PersonContract.PersonEntry.TABLE_NAME
 
 class PersonProvider : ContentProvider() {
-    private lateinit var database : SQLiteDatabase
+    private lateinit var database: SQLiteDatabase
 
     override fun onCreate(): Boolean {
-        if(context == null) return false
+        if (context == null) return false
         database = DatabaseHelper.getInstance(context!!).writableDatabase
 
         return true
@@ -29,10 +29,19 @@ class PersonProvider : ContentProvider() {
         sortOrder: String?
     ): Cursor? {
         var cursor: Cursor? = null
-        when(uriMatcher.match(uri)){
+        when (uriMatcher.match(uri)) {
             PERSONS -> {
-                cursor = database.query(TABLE_NAME, projcetion, selection, selctionArgs, null, null, sortOrder)
+                cursor = database.query(
+                    TABLE_NAME,
+                    projcetion,
+                    selection,
+                    selctionArgs,
+                    null,
+                    null,
+                    sortOrder
+                )
             }
+
             else -> throw IllegalArgumentException("알 수 없는 URI : $uri")
         }
 
@@ -41,7 +50,7 @@ class PersonProvider : ContentProvider() {
     }
 
     override fun getType(uri: Uri): String? {
-        when(uriMatcher.match(uri)){
+        when (uriMatcher.match(uri)) {
             PERSONS -> return "vnd.android.cursor.dir/persons"
             else -> throw IllegalArgumentException("알 수 없는 URI : $uri")
         }
@@ -50,7 +59,7 @@ class PersonProvider : ContentProvider() {
     override fun insert(uri: Uri, values: ContentValues?): Uri? {
         val id = database.insert(TABLE_NAME, null, values)
 
-        if(id > 0){
+        if (id > 0) {
             val uri = ContentUris.withAppendedId(CONTENT_URI, id)
             context?.contentResolver?.notifyChange(uri, null)
             return uri
@@ -61,7 +70,7 @@ class PersonProvider : ContentProvider() {
 
     override fun delete(uri: Uri, selection: String?, selectionArgs: Array<out String>?): Int {
         var count = 0
-        when(uriMatcher.match(uri)){
+        when (uriMatcher.match(uri)) {
             PERSONS -> count = database.delete(TABLE_NAME, selection, selectionArgs)
             else -> throw IllegalArgumentException("알 수 없는 URI : $uri")
         }
@@ -69,9 +78,14 @@ class PersonProvider : ContentProvider() {
         return count
     }
 
-    override fun update(uri: Uri, values: ContentValues?, selection: String?, selectionArgs: Array<out String>?): Int {
+    override fun update(
+        uri: Uri,
+        values: ContentValues?,
+        selection: String?,
+        selectionArgs: Array<out String>?
+    ): Int {
         var count = 0
-        when(uriMatcher.match(uri)){
+        when (uriMatcher.match(uri)) {
             PERSONS -> count = database.update(TABLE_NAME, values, selection, selectionArgs)
             else -> throw IllegalArgumentException("알 수 없는 URI : $uri")
         }
@@ -79,7 +93,7 @@ class PersonProvider : ContentProvider() {
         return count
     }
 
-    companion object{
+    companion object {
         const val AUTHORITY = "com.github.kimhyunjin.myapplication.provider"
         const val BASE_PATH = "person"
 

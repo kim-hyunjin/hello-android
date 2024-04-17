@@ -1,4 +1,4 @@
-package com.github.kimhyunjin.myapplication.db
+package com.github.kimhyunjin.mycontentprovider.db
 
 import android.provider.BaseColumns
 
