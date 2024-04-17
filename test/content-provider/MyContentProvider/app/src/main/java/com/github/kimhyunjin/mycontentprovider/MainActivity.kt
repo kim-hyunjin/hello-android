@@ -23,6 +23,19 @@ class MainActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
+        binding.insertBtn.setOnClickListener {
+            insertData()
+        }
+        binding.queryBtn.setOnClickListener {
+            queryData()
+        }
+        binding.updateBtn.setOnClickListener {
+            updateDate()
+        }
+        binding.deleteBtn.setOnClickListener {
+            deleteData()
+        }
     }
 
     private fun insertData() {
