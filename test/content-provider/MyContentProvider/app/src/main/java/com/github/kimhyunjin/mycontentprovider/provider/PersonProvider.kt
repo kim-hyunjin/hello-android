@@ -94,7 +94,7 @@ class PersonProvider : ContentProvider() {
     }
 
     companion object {
-        const val AUTHORITY = "com.github.kimhyunjin.myapplication.provider"
+        const val AUTHORITY = "com.github.kimhyunjin.mycontentprovider.provider.PersonProvider"
         const val BASE_PATH = "person"
 
         /**

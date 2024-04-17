@@ -40,7 +40,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun insertData() {
         println("insertData가 호출됨")
-        var uri = Uri.parse("content://com.github.kimhyunjin.myapplication.provider/person")
+        var uri =
+            Uri.parse("content://com.github.kimhyunjin.mycontentprovider.provider.PersonProvider/person")
         val values = ContentValues().apply {
             put(PersonContract.PersonEntry.PERSON_NAME, "ows")
             put(PersonContract.PersonEntry.PERSON_AGE, 28)
@@ -53,7 +54,8 @@ class MainActivity : AppCompatActivity() {
 
     @SuppressLint("Range")
     private fun queryData() {
-        val uri = Uri.parse("content://com.github.kimhyunjin.myapplication.provider/person")
+        val uri =
+            Uri.parse("content://com.github.kimhyunjin.mycontentprovider.provider.PersonProvider/person")
         val columns = arrayOf(
             PersonContract.PersonEntry.PERSON_NAME,
             PersonContract.PersonEntry.PERSON_AGE,
@@ -76,7 +78,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateDate() {
-        val uri = Uri.parse("content://com.github.kimhyunjin.myapplication.provider/person")
+        val uri =
+            Uri.parse("content://com.github.kimhyunjin.mycontentprovider.provider.PersonProvider/person")
         val selection = "mobile = ?"
         val selectionArgs = arrayOf("010-0000-0000")
 
@@ -89,7 +92,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun deleteData() {
-        val uri = Uri.parse("content://com.github.kimhyunjin.myapplication.provider/person")
+        val uri =
+            Uri.parse("content://com.github.kimhyunjin.mycontentprovider.provider.PersonProvider/person")
         val selection = "name = ?"
         val selectionArgs = arrayOf("ows")
 

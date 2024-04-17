@@ -21,6 +21,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <provider
+            android:authorities="com.github.kimhyunjin.mycontentprovider.provider.PersonProvider"
+            android:name="com.github.kimhyunjin.mycontentprovider.provider.PersonProvider"
+            android:exported="true"
+            tools:ignore="ExportedContentProvider" />
     </application>
 
 </manifest>
