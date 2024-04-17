@@ -8,8 +8,8 @@ import com.github.kimhyunjin.mywindowmanager.service.OverlayService
 
 class MyBroadcastReceiver: BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
-        Log.i("TEST", "onReceive!!")
         val data = intent?.getStringExtra("data")
+        Log.i("TEST", "onReceive!! - ${data}")
         data?.let {
             if (it == "runOverlay") {
                 context?.startService(Intent(context, OverlayService::class.java))
