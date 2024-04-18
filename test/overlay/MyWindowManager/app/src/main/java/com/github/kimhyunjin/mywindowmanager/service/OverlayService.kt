@@ -16,6 +16,7 @@ import android.view.View.OnTouchListener
 import android.view.WindowManager
 import android.webkit.JavascriptInterface
 import android.webkit.WebViewClient
+import com.github.kimhyunjin.mywindowmanager.R
 import com.github.kimhyunjin.mywindowmanager.databinding.ContentMainBinding
 
 
@@ -23,10 +24,10 @@ class OverlayService : Service() {
     private lateinit var windowManager: WindowManager
     private lateinit var params: WindowManager.LayoutParams
     private lateinit var binding: ContentMainBinding
-    private var initialX: Int = 0;
-    private var initialY: Int = 0;
-    private var initialTouchX: Float = 0f;
-    private var initialTouchY: Float = 0f;
+    private var initialX: Int = 0
+    private var initialY: Int = 0
+    private var initialTouchX: Float = 0f
+    private var initialTouchY: Float = 0f
 
 
     override fun onBind(p0: Intent?): IBinder? {
@@ -41,11 +42,11 @@ class OverlayService : Service() {
 
         params = WindowManager.LayoutParams(
             dpToPx(this, 300f),
-            dpToPx(this, 300f),
+            dpToPx(this, 350f),
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
             WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
             PixelFormat.TRANSLUCENT
-        );
+        )
         params.gravity = Gravity.CENTER
     }
 
@@ -58,16 +59,17 @@ class OverlayService : Service() {
         super.onDestroy()
         val webView = binding.webview
         webView.destroy()
-        windowManager.removeView(binding.root);
+        windowManager.removeView(binding.root)
     }
 
+    @SuppressLint("SetJavaScriptEnabled")
     private fun showOverlay() {
         // 오버레이 뷰를 윈도우 매니저에 추가
         windowManager.addView(binding.root, params)
 
         val webView = binding.webview
         webView.webViewClient = WebViewClient()
-        webView.addJavascriptInterface(WebAppInterface(binding), "Android")
+        webView.addJavascriptInterface(WebAppInterface(this, binding), "Android")
         webView.settings.javaScriptEnabled = true
         webView.loadUrl("http://10.1.1.228:5173")
 
@@ -118,11 +120,11 @@ class OverlayService : Service() {
         binding.webview.evaluateJavascript("javascript:receiveMessageFromAndroid('$message')", null)
     }
 
-    class WebAppInterface(private val binding: ContentMainBinding) {
+    class WebAppInterface(private val context: Context, private val binding: ContentMainBinding) {
         @JavascriptInterface
         fun send(message: String) {
             Log.i("send", message)
-            binding.textView.text = "Webview says: $message"
+            binding.textView.text = context.getString(R.string.webview_says, message)
         }
     }
 }

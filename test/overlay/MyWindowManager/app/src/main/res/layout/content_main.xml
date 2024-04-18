@@ -29,7 +29,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/white"
-            android:text="@string/webview_says" />
+            android:text="@string/webview_says_placeholder" />
 
         <EditText
             android:id="@+id/editText"
