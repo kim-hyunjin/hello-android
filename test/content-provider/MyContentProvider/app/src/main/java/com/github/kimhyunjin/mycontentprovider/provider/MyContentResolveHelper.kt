@@ -1,4 +1,4 @@
-package com.github.kimhyunjin.contentresolverexam
+package com.github.kimhyunjin.mycontentprovider.provider
 
 import android.content.ContentResolver
 import android.content.ContentValues
@@ -6,18 +6,26 @@ import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import com.github.kimhyunjin.mycontentprovider.room.Item
 
-class ContentResolverHelper(private var mContext: Context) {
+class MyContentResolveHelper(private val mContext: Context) {
+
     private var contentResolver: ContentResolver = mContext.contentResolver
 
     /**
      * select all items
      */
-    fun getAllItems() {
+    fun getAllItems(): List<Item> {
+        Log.i("getAllItems", "called!")
+
+        val list = ArrayList<Item>()
 
         val cursor = contentResolver.query(MyContract.CONTENT_URI, null, null, null, null)
 
+        Log.i("getAllItems", "cursor - ${cursor?.count}")
+
         if (cursor != null && cursor.count > 0) {
+
             while (cursor.moveToNext()) {
 
                 val itemIdIndex = cursor.getColumnIndex("itemId")
@@ -28,15 +36,20 @@ class ContentResolverHelper(private var mContext: Context) {
                 val title = cursor.getString(titleIndex)
                 val content = cursor.getString(contentIndex)
 
+                val item = Item(id, title, content)
+                list.add(item)
+
                 Log.v(">>>", "@# id[$id] title[$title] content[$content]")
             }
         }
+
+        return list
     }
 
     /**
      * select single item
      */
-    fun getItem(id: Long) {
+    fun getItem(id: Long): Item? {
 
         val cursor = contentResolver.query(MyContract.CONTENT_URI, null, "id", arrayOf("$id"), null)
 
@@ -52,9 +65,11 @@ class ContentResolverHelper(private var mContext: Context) {
                 val title = cursor.getString(titleIndex)
                 val content = cursor.getString(contentIndex)
 
-                Log.v(">>>", "@# id[$id] title[$title] content[$content]")
+                return Item(id, title, content)
             }
         }
+
+        return null
     }
 
     /**
@@ -71,9 +86,9 @@ class ContentResolverHelper(private var mContext: Context) {
      */
     fun removeItem(id: Long) {
 
-        val uriInfo = "${MyContract.URI_STRING}/$id"
+        val uriString = "${MyContract.URI_STRING}/$id"
 
-        contentResolver.delete(Uri.parse(uriInfo), "id", arrayOf("$id"))
+        contentResolver.delete(Uri.parse(uriString), "id", arrayOf("$id"))
     }
 
     /**

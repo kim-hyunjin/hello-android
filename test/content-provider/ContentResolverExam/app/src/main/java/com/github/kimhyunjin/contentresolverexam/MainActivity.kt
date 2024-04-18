@@ -16,14 +16,15 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        val contentResolverHelper = ContentResolverHelper(this)
+        val contentResolverHelper = MyContentResolverHelper(this)
         val sdf = SimpleDateFormat("HH:mm:ss")
 
-        // A앱 리스트 불러오기 - Log 출력
-        binding.btnLog.setOnClickListener {
+        // A앱 리스트 불러오기
+        binding.btnQuery.setOnClickListener {
 
             // RoomDatabase 모두 불러오기
-            contentResolverHelper.getAllItems()
+            val list = contentResolverHelper.getAllItems()
+            binding.resultTextView.text = list.toString()
         }
 
         // A앱 Item 추가
@@ -40,6 +41,7 @@ class MainActivity : AppCompatActivity() {
 
             // 커스텀 메서드 호출
             val message = contentResolverHelper.customMethod()
+
             Toast.makeText(this, "message : $message", Toast.LENGTH_SHORT).show()
         }
     }

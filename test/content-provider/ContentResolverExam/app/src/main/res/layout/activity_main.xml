@@ -13,13 +13,13 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         android:text="Client"
-        android:textSize="40dp"
+        android:textSize="40sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/btnLog"
+        android:id="@+id/btnQuery"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="40dp"
@@ -39,7 +39,7 @@
         android:text="ADD"
         android:textAllCaps="false"
         app:layout_constraintEnd_toStartOf="@id/btnCustomMethod"
-        app:layout_constraintStart_toEndOf="@id/btnLog"
+        app:layout_constraintStart_toEndOf="@id/btnQuery"
         app:layout_constraintTop_toBottomOf="@id/tvAppTitle" />
 
     <androidx.appcompat.widget.AppCompatButton
@@ -53,5 +53,14 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/btnAdd"
         app:layout_constraintTop_toBottomOf="@id/tvAppTitle" />
+
+    <TextView
+        android:id="@+id/resultTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnLog" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
