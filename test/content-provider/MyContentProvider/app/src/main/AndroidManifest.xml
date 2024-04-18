@@ -6,7 +6,7 @@
         android:name="com.github.kimhyunjin.mycontentprovider.READ_DATABASE"
         android:protectionLevel="normal" />
     <permission
-        android:name="com.github.kimhyunjin.mycontentprovider.WRITE_DATABAS"
+        android:name="com.github.kimhyunjin.mycontentprovider.WRITE_DATABASE"
         android:protectionLevel="normal" />
 
     <application
@@ -36,10 +36,10 @@
             tools:ignore="ExportedContentProvider" />
 
         <provider
-            android:name=".provider.MyContentProvider"
+            android:name="com.github.kimhyunjin.mycontentprovider.provider.MyContentProvider"
             android:authorities="com.github.kimhyunjin.mycontentprovider.provider.MyContentProvider"
             android:readPermission="com.github.kimhyunjin.mycontentprovider.READ_DATABASE"
-            android:writePermission="com.github.kimhyunjin.mycontentprovider.WRITE_DATABAS"
+            android:writePermission="com.github.kimhyunjin.mycontentprovider.WRITE_DATABASE"
             android:exported="true" />
     </application>
 

@@ -10,18 +10,19 @@ abstract class ItemDatabase : RoomDatabase() {
     abstract fun itemDao(): ItemDao
 
     companion object {
+
+        @Volatile
         private var INSTANCE: ItemDatabase? = null
 
-        fun getInstance(context: Context): ItemDatabase {
-            if (INSTANCE == null) {
-                synchronized(ItemDatabase::class.java) {
-                    INSTANCE = Room.databaseBuilder(
-                        context, ItemDatabase::class.java,
-                        "item-database.db"
-                    ).build()
-                }
-            }
-            return INSTANCE!!
+        fun getInstance(context: Context): ItemDatabase = INSTANCE ?: synchronized(this) {
+            INSTANCE ?: buildDatabase(context).also { INSTANCE = it }
         }
+
+        private fun buildDatabase(context: Context): ItemDatabase =
+            Room.databaseBuilder(
+                context.applicationContext,
+                ItemDatabase::class.java,
+                "db_item"
+            ).build()
     }
 }
