@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">MyWindowManager</string>
-    <string name="title">Title</string>
     <string name="destroy">Destroy</string>
     <string name="overlay">Overlay</string>
+    <string name="send_message_to_webview">Send message to webview</string>
+    <string name="say_to_webview">Say to Webview</string>
+    <string name="webview_says">Webview Says:</string>
 </resources>

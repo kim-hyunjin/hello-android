@@ -15,9 +15,9 @@ const sendToAndroid = () => {
 
 <template>
   <div class="main">
-    <input v-model="messageToAndroid" />
+    <input v-model="messageToAndroid" placeholder="Say to Android" />
     <button @click="sendToAndroid">Send Message to android</button>
-    <p>{{ messageFromAndroid }}</p>
+    <p>android says: {{ messageFromAndroid }}</p>
   </div>
 </template>
 
@@ -25,6 +25,10 @@ const sendToAndroid = () => {
 .main {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1rem;
+}
+
+input {
+  height: 1.5rem;
 }
 </style>

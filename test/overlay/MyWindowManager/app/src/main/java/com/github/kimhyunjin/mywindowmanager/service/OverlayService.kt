@@ -19,7 +19,7 @@ import android.webkit.WebViewClient
 import com.github.kimhyunjin.mywindowmanager.databinding.ContentMainBinding
 
 
-class OverlayService: Service() {
+class OverlayService : Service() {
     private lateinit var windowManager: WindowManager
     private lateinit var params: WindowManager.LayoutParams
     private lateinit var binding: ContentMainBinding
@@ -36,12 +36,14 @@ class OverlayService: Service() {
     override fun onCreate() {
         super.onCreate()
         windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
+        val inflater = getSystemService(LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        binding = ContentMainBinding.inflate(inflater)
 
         params = WindowManager.LayoutParams(
             dpToPx(this, 300f),
             dpToPx(this, 300f),
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+            WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
             PixelFormat.TRANSLUCENT
         );
         params.gravity = Gravity.CENTER
@@ -60,26 +62,25 @@ class OverlayService: Service() {
     }
 
     private fun showOverlay() {
-        // 오버레이 뷰 생성
-        val inflater = getSystemService(LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        binding = ContentMainBinding.inflate(inflater)
-
         // 오버레이 뷰를 윈도우 매니저에 추가
         windowManager.addView(binding.root, params)
 
         val webView = binding.webview
         webView.webViewClient = WebViewClient()
-        webView.addJavascriptInterface(this, "Android")
+        webView.addJavascriptInterface(WebAppInterface(binding), "Android")
         webView.settings.javaScriptEnabled = true
-        webView.requestFocus(View.FOCUS_DOWN)
         webView.loadUrl("http://10.1.1.228:5173")
 
         setTouchHandlerForWindowMove()
+
+        binding.toWebViewBtn.setOnClickListener {
+            sendMessageToWebView(binding.editText.text.toString())
+        }
     }
 
     @SuppressLint("ClickableViewAccessibility")
     private fun setTouchHandlerForWindowMove() {
-        binding.title.setOnTouchListener(object: OnTouchListener {
+        binding.root.setOnTouchListener(object : OnTouchListener {
             override fun onTouch(v: View?, event: MotionEvent?): Boolean {
                 when (event?.action) {
                     MotionEvent.ACTION_DOWN -> {
@@ -103,17 +104,24 @@ class OverlayService: Service() {
     }
 
     private fun dpToPx(context: Context, dp: Float): Int {
-        val px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, context.resources.displayMetrics)
+        val px = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            dp,
+            context.resources.displayMetrics
+        )
         return px.toInt()
     }
 
-    @JavascriptInterface
-    fun send(message: String) {
-        Log.i("send", message)
-        sendMessageToWebView(message)
-    }
     private fun sendMessageToWebView(message: String) {
         // Execute JavaScript function in WebView
         binding.webview.evaluateJavascript("javascript:receiveMessageFromAndroid('$message')", null)
+    }
+
+    class WebAppInterface(private val binding: ContentMainBinding) {
+        @JavascriptInterface
+        fun send(message: String) {
+            Log.i("send", message)
+            binding.textView.text = "Webview says: $message"
+        }
     }
 }
