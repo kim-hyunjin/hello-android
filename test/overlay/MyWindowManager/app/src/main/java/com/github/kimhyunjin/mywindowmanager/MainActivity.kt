@@ -13,13 +13,15 @@ import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.github.kimhyunjin.mywindowmanager.databinding.ActivityMainBinding
+import com.github.kimhyunjin.mywindowmanager.service.MyForegroundService
 
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
     private val overlayPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()) {
+        ActivityResultContracts.StartActivityForResult()
+    ) {
         if (Settings.canDrawOverlays(this)) {
             runOverlay()
         } else {
@@ -44,6 +46,20 @@ class MainActivity : AppCompatActivity() {
         binding.destroyBtn.setOnClickListener {
             destroyOverlay()
         }
+
+        val message = intent.getStringExtra("message")
+        if (message.equals("runForeground")) {
+            runMyForegroundService()
+            finish()
+        }
+    }
+
+    private fun runMyForegroundService() {
+        val serviceIntent = Intent(
+            this,
+            MyForegroundService::class.java
+        )
+        startForegroundService(serviceIntent)
     }
 
     private fun checkPermission() {
