@@ -10,14 +10,15 @@ onMounted(() => {
 })
 const sendToAndroid = () => {
   window.Android.send(messageToAndroid.value)
+  messageToAndroid.value = ''
 }
 </script>
 
 <template>
   <div class="main">
     <input v-model="messageToAndroid" placeholder="Say to Android" />
-    <button @click="sendToAndroid">Send Message to android</button>
-    <p>android says: {{ messageFromAndroid }}</p>
+    <button @click="sendToAndroid">Send message to android</button>
+    <p>Android says: {{ messageFromAndroid }}</p>
   </div>
 </template>
 

@@ -75,6 +75,7 @@ class OverlayService : Service() {
 
         binding.toWebViewBtn.setOnClickListener {
             sendMessageToWebView(binding.editText.text.toString())
+            binding.editText.text.clear()
         }
     }
 
