@@ -1,10 +1,12 @@
 package com.github.kimhyunjin.mywindowmanager.service
 
 import android.app.Service
+import android.content.Context
 import android.content.Intent
 import android.graphics.PixelFormat
 import android.os.IBinder
 import android.util.Log
+import android.util.TypedValue
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -31,14 +33,15 @@ class OverlayService: Service(), OnTouchListener {
     override fun onCreate() {
         super.onCreate()
         windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
+
         params = WindowManager.LayoutParams(
-            WindowManager.LayoutParams.WRAP_CONTENT,
-            WindowManager.LayoutParams.WRAP_CONTENT,
+            dpToPx(this, 300f),
+            dpToPx(this, 300f),
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
             PixelFormat.TRANSLUCENT
         );
-        params.gravity = Gravity.START or Gravity.TOP
+        params.gravity = Gravity.CENTER
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -96,5 +99,10 @@ class OverlayService: Service(), OnTouchListener {
             windowManager.removeView(overlayView);
             overlayView = null
         }
+    }
+
+    private fun dpToPx(context: Context, dp: Float): Int {
+        val px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, context.resources.displayMetrics)
+        return px.toInt()
     }
 }
