@@ -1,5 +1,6 @@
 package com.github.kimhyunjin.mywindowmanager.service
 
+import android.annotation.SuppressLint
 import android.app.Service
 import android.content.Context
 import android.content.Intent
@@ -13,18 +14,20 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.View.OnTouchListener
 import android.view.WindowManager
-import android.webkit.WebView
+import android.webkit.JavascriptInterface
 import android.webkit.WebViewClient
-import com.github.kimhyunjin.mywindowmanager.R
+import com.github.kimhyunjin.mywindowmanager.databinding.ContentMainBinding
 
-class OverlayService: Service(), OnTouchListener {
+
+class OverlayService: Service() {
     private lateinit var windowManager: WindowManager
     private lateinit var params: WindowManager.LayoutParams
+    private lateinit var binding: ContentMainBinding
     private var initialX: Int = 0;
     private var initialY: Int = 0;
     private var initialTouchX: Float = 0f;
     private var initialTouchY: Float = 0f;
-    private var overlayView: View? = null;
+
 
     override fun onBind(p0: Intent?): IBinder? {
         return null
@@ -49,60 +52,68 @@ class OverlayService: Service(), OnTouchListener {
         return START_STICKY
     }
 
-    private fun showOverlay() {
-        // 오버레이 뷰 생성
-        val inflater = getSystemService(LAYOUT_INFLATER_SERVICE) as? LayoutInflater
-        overlayView = inflater?.inflate(R.layout.content_main, null);
-        val webView = overlayView?.findViewById<WebView>(R.id.webview)
-        webView?.let {
-            it.webViewClient = WebViewClient()
-            it.loadUrl("https://google.com")
-            it.settings.javaScriptEnabled = true
-        }
-
-        // 오버레이 뷰를 윈도우 매니저에 추가
-        windowManager.addView(overlayView, params)
-
-        overlayView?.setOnTouchListener(this)
-    }
-
-    override fun onTouch(v: View?, event: MotionEvent?): Boolean {
-        Log.i("onTouch", "${event?.x} ${event?.y}")
-        when (event?.action) {
-            MotionEvent.ACTION_DOWN -> {
-                initialX = params.x
-                initialY = params.y
-                initialTouchX = event.rawX
-                initialTouchY = event.rawY
-                return true
-            }
-
-            MotionEvent.ACTION_MOVE -> {
-                params.x = initialX + (event.rawX - initialTouchX).toInt()
-                params.y = initialY + (event.rawY - initialTouchY).toInt()
-                windowManager.updateViewLayout(overlayView, params)
-                return true
-            }
-
-            MotionEvent.ACTION_UP -> {
-                v?.performClick()
-            }
-        }
-        return false
-    }
-
     override fun onDestroy() {
         super.onDestroy()
-        if (overlayView != null) {
-            val webView = overlayView!!.findViewById<WebView>(R.id.webview)
-            webView.destroy()
-            windowManager.removeView(overlayView);
-            overlayView = null
-        }
+        val webView = binding.webview
+        webView.destroy()
+        windowManager.removeView(binding.root);
+    }
+
+    private fun showOverlay() {
+        // 오버레이 뷰 생성
+        val inflater = getSystemService(LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        binding = ContentMainBinding.inflate(inflater)
+
+        // 오버레이 뷰를 윈도우 매니저에 추가
+        windowManager.addView(binding.root, params)
+
+        val webView = binding.webview
+        webView.webViewClient = WebViewClient()
+        webView.addJavascriptInterface(this, "Android")
+        webView.settings.javaScriptEnabled = true
+        webView.requestFocus(View.FOCUS_DOWN)
+        webView.loadUrl("http://10.1.1.228:5173")
+
+        setTouchHandlerForWindowMove()
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    private fun setTouchHandlerForWindowMove() {
+        binding.title.setOnTouchListener(object: OnTouchListener {
+            override fun onTouch(v: View?, event: MotionEvent?): Boolean {
+                when (event?.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        initialX = params.x
+                        initialY = params.y
+                        initialTouchX = event.rawX
+                        initialTouchY = event.rawY
+                        return true
+                    }
+
+                    MotionEvent.ACTION_MOVE -> {
+                        params.x = initialX + (event.rawX - initialTouchX).toInt()
+                        params.y = initialY + (event.rawY - initialTouchY).toInt()
+                        windowManager.updateViewLayout(binding.root, params)
+                        return true
+                    }
+                }
+                return false
+            }
+        })
     }
 
     private fun dpToPx(context: Context, dp: Float): Int {
         val px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, context.resources.displayMetrics)
         return px.toInt()
+    }
+
+    @JavascriptInterface
+    fun send(message: String) {
+        Log.i("send", message)
+        sendMessageToWebView(message)
+    }
+    private fun sendMessageToWebView(message: String) {
+        // Execute JavaScript function in WebView
+        binding.webview.evaluateJavascript("javascript:receiveMessageFromAndroid('$message')", null)
     }
 }
