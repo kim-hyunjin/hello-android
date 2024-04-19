@@ -11,24 +11,34 @@
         android:id="@+id/buttons_linear_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
-        android:orientation="horizontal">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <Button
+            android:id="@+id/foreground_btn"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/foreground" />
+
         <Button
             android:id="@+id/overlay_btn"
+            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/overlay"
-            style="?android:attr/buttonBarButtonStyle" />
+            android:text="@string/overlay" />
+
         <Button
             android:id="@+id/destroy_btn"
+            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/destroy"
-            style="?android:attr/buttonBarButtonStyle" />
+            android:text="@string/destroy" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
